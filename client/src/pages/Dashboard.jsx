@@ -1,9 +1,59 @@
+import { useState, useEffect } from 'react'
 import { UserButton, useUser } from '@clerk/clerk-react'
 import { Link } from 'react-router-dom'
+import axios from 'axios'
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import Sidebar from '../components/Sidebar'
 
 function Dashboard() {
   const { user } = useUser()
+  const [stats, setStats] = useState(null)
+  const [quizPerformance, setQuizPerformance] = useState([])
+  const [coursePerformance, setCoursePerformance] = useState([])
+  const [recentActivity, setRecentActivity] = useState([])
+  const [weakAreas, setWeakAreas] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const getAuthToken = async () => {
+    return await window.Clerk.session.getToken()
+  }
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const token = await getAuthToken()
+      const headers = { Authorization: `Bearer ${token}` }
+
+      const [statsRes, performanceRes, courseRes, activityRes, weakRes] = await Promise.all([
+        axios.get('/api/progress/dashboard', { headers }),
+        axios.get('/api/progress/quiz-performance?days=14', { headers }),
+        axios.get('/api/progress/course-performance', { headers }),
+        axios.get('/api/progress/recent-activity?limit=5', { headers }),
+        axios.get('/api/progress/weak-areas', { headers })
+      ])
+
+      setStats(statsRes.data)
+      setQuizPerformance(performanceRes.data)
+      setCoursePerformance(courseRes.data)
+      setRecentActivity(activityRes.data)
+      setWeakAreas(weakRes.data)
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-gray-600">Loading dashboard...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -29,7 +79,7 @@ function Dashboard() {
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
@@ -40,7 +90,7 @@ function Dashboard() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Total Files</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">0</dd>
+                      <dd className="text-2xl font-semibold text-gray-900">{stats?.totalFiles || 0}</dd>
                     </dl>
                   </div>
                 </div>
@@ -56,7 +106,7 @@ function Dashboard() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Quizzes Taken</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">0</dd>
+                      <dd className="text-2xl font-semibold text-gray-900">{stats?.totalQuizzes || 0}</dd>
                     </dl>
                   </div>
                 </div>
@@ -72,7 +122,7 @@ function Dashboard() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Average Score</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">0%</dd>
+                      <dd className="text-2xl font-semibold text-gray-900">{stats?.averageScore || 0}%</dd>
                     </dl>
                   </div>
                 </div>
@@ -88,9 +138,129 @@ function Dashboard() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Courses</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">0</dd>
+                      <dd className="text-2xl font-semibold text-gray-900">{stats?.totalCourses || 0}</dd>
                     </dl>
                   </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 bg-red-500 rounded-md p-3">
+                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                    </svg>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Study Streak</dt>
+                      <dd className="text-2xl font-semibold text-gray-900">{stats?.studyStreak || 0} days</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Quiz Performance Over Time */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quiz Performance (Last 14 Days)</h3>
+                {quizPerformance.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={quizPerformance}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" fontSize={12} />
+                      <YAxis domain={[0, 100]} fontSize={12} />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="averageScore" stroke="#3B82F6" name="Avg Score" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-gray-500 text-center py-16">No quiz data yet. Start taking quizzes to see your progress!</p>
+                )}
+              </div>
+
+              {/* Course Performance */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Performance</h3>
+                {coursePerformance.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={coursePerformance}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="courseName" fontSize={12} />
+                      <YAxis domain={[0, 100]} fontSize={12} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="averageScore" fill="#10B981" name="Avg Score" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-gray-500 text-center py-16">No course data yet.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Activity & Weak Areas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Recent Activity */}
+              <div className="bg-white rounded-lg shadow">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                </div>
+                <div className="p-6">
+                  {recentActivity.length > 0 ? (
+                    <div className="space-y-4">
+                      {recentActivity.map(activity => (
+                        <div key={activity.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">{activity.quizTitle}</p>
+                            <p className="text-sm text-gray-500">{activity.courseName}</p>
+                            <p className="text-xs text-gray-400">{new Date(activity.completedAt).toLocaleDateString()}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-2xl font-bold ${activity.score >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                              {activity.score}%
+                            </p>
+                            <p className="text-xs text-gray-500">{activity.correctCount}/{activity.totalQuestions}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-center py-8">No recent activity</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Weak Areas */}
+              <div className="bg-white rounded-lg shadow">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900">Areas to Improve</h3>
+                </div>
+                <div className="p-6">
+                  {weakAreas.length > 0 ? (
+                    <div className="space-y-4">
+                      {weakAreas.map((area, index) => (
+                        <div key={index} className="border-l-4 border-red-500 pl-4 py-2">
+                          <p className="font-medium text-gray-900">{area.courseName}</p>
+                          <div className="flex items-center justify-between mt-1">
+                            <p className="text-sm text-gray-500">{area.attemptsCount} attempts</p>
+                            <p className="text-lg font-semibold text-red-600">{area.averageScore}%</p>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">💡 Spend more time reviewing this course</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <svg className="w-12 h-12 mx-auto text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-gray-500">Great job! All courses above 70%</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
