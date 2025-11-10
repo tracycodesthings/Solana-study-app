@@ -1,9 +1,43 @@
+import File from '../models/File.js'
+import Course from '../models/Course.js'
+import fs from 'fs/promises'
+import path from 'path'
+
 // Upload file
 export const uploadFile = async (req, res) => {
   try {
-    // TODO: Implement file upload logic
-    res.status(501).json({ message: 'File upload endpoint - Coming soon' })
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' })
+    }
+
+    const { courseId } = req.body
+    if (!courseId) {
+      // Clean up uploaded file
+      await fs.unlink(req.file.path)
+      return res.status(400).json({ error: 'Course ID is required' })
+    }
+
+    // Verify course exists and belongs to user
+    const course = await Course.findOne({ _id: courseId, userId: req.auth.userId })
+    if (!course) {
+      await fs.unlink(req.file.path)
+      return res.status(404).json({ error: 'Course not found' })
+    }
+
+    // Create file record
+    const file = await File.create({
+      name: req.file.originalname,
+      originalName: req.file.originalname,
+      url: `/uploads/${req.file.filename}`,
+      size: req.file.size,
+      mimeType: req.file.mimetype,
+      courseId,
+      userId: req.auth.userId
+    })
+
+    res.status(201).json(file)
   } catch (error) {
+    console.error('Upload error:', error)
     res.status(500).json({ error: error.message })
   }
 }
@@ -12,8 +46,17 @@ export const uploadFile = async (req, res) => {
 export const getFilesByCourse = async (req, res) => {
   try {
     const { courseId } = req.params
-    // TODO: Implement get files logic
-    res.json({ courseId, files: [] })
+
+    // Verify course belongs to user
+    const course = await Course.findOne({ _id: courseId, userId: req.auth.userId })
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' })
+    }
+
+    const files = await File.find({ courseId, userId: req.auth.userId })
+      .sort({ uploadedAt: -1 })
+
+    res.json(files)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -23,8 +66,24 @@ export const getFilesByCourse = async (req, res) => {
 export const deleteFile = async (req, res) => {
   try {
     const { fileId } = req.params
-    // TODO: Implement delete file logic
-    res.json({ message: 'File deleted', fileId })
+
+    const file = await File.findOne({ _id: fileId, userId: req.auth.userId })
+    if (!file) {
+      return res.status(404).json({ error: 'File not found' })
+    }
+
+    // Delete physical file
+    const filePath = path.join(process.cwd(), file.url)
+    try {
+      await fs.unlink(filePath)
+    } catch (err) {
+      console.error('Error deleting physical file:', err)
+    }
+
+    // Delete database record
+    await File.deleteOne({ _id: fileId })
+
+    res.json({ message: 'File deleted successfully' })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -35,8 +94,20 @@ export const renameFile = async (req, res) => {
   try {
     const { fileId } = req.params
     const { name } = req.body
-    // TODO: Implement rename file logic
-    res.json({ message: 'File renamed', fileId, name })
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'File name is required' })
+    }
+
+    const file = await File.findOne({ _id: fileId, userId: req.auth.userId })
+    if (!file) {
+      return res.status(404).json({ error: 'File not found' })
+    }
+
+    file.name = name.trim()
+    await file.save()
+
+    res.json(file)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

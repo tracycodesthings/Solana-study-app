@@ -9,6 +9,7 @@ import fileRoutes from './routes/fileRoutes.js'
 import quizRoutes from './routes/quizRoutes.js'
 import tutorRoutes from './routes/tutorRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import structureRoutes from './routes/structureRoutes.js'
 
 // Load environment variables
 dotenv.config()
@@ -50,11 +51,15 @@ app.get('/api/health', (req, res) => {
   })
 })
 
+// Serve uploaded files
+app.use('/uploads', express.static('uploads'))
+
 // API Routes
 app.use('/api/files', fileRoutes)
 app.use('/api/quizzes', quizRoutes)
 app.use('/api/tutor', tutorRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/structure', structureRoutes)
 
 // 404 handler
 app.use((req, res) => {
