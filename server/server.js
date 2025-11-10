@@ -10,6 +10,8 @@ import quizRoutes from './routes/quizRoutes.js'
 import tutorRoutes from './routes/tutorRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import structureRoutes from './routes/structureRoutes.js'
+import progressRoutes from './routes/progressRoutes.js'
+import searchRoutes from './routes/searchRoutes.js'
 
 // Load environment variables
 dotenv.config()
@@ -60,6 +62,8 @@ app.use('/api/quizzes', quizRoutes)
 app.use('/api/tutor', tutorRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/structure', structureRoutes)
+app.use('/api/progress', progressRoutes)
+app.use('/api/search', searchRoutes)
 
 // 404 handler
 app.use((req, res) => {

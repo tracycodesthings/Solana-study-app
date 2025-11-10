@@ -1,5 +1,6 @@
 import Quiz from '../models/Quiz.js'
 import UploadedQuiz from '../models/UploadedQuiz.js'
+import QuizAttempt from '../models/QuizAttempt.js'
 import Course from '../models/Course.js'
 import File from '../models/File.js'
 import fs from 'fs/promises'
@@ -183,6 +184,17 @@ export const submitQuiz = async (req, res) => {
     })
     
     const score = (correctCount / quiz.questions.length) * 100
+    
+    // Save quiz attempt for progress tracking
+    await QuizAttempt.create({
+      userId: req.auth.userId,
+      quizId: quiz._id,
+      courseId: quiz.courseId,
+      score: parseFloat(score.toFixed(2)),
+      correctCount,
+      totalQuestions: quiz.questions.length,
+      answers: results
+    })
     
     res.json({
       score: score.toFixed(2),

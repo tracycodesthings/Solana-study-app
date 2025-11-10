@@ -3,7 +3,9 @@ import { UserButton, useUser } from '@clerk/clerk-react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { motion } from 'framer-motion'
 import Sidebar from '../components/Sidebar'
+import EmptyState from '../components/EmptyState'
 
 function Dashboard() {
   const { user } = useUser()
@@ -56,17 +58,17 @@ function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-white shadow-sm z-10">
+        <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
-              <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h2>
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
                   Welcome, {user?.firstName || 'User'}!
                 </span>
                 <UserButton afterSignOutUrl="/sign-in" />
@@ -76,11 +78,17 @@ function Dashboard() {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow p-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6 transition-all hover:shadow-xl"
+              >
                 <div className="flex items-center">
                   <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -89,14 +97,20 @@ function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Total Files</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">{stats?.totalFiles || 0}</dd>
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Total Files</dt>
+                      <dd className="text-2xl font-semibold text-gray-900 dark:text-white">{stats?.totalFiles || 0}</dd>
                     </dl>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-white rounded-lg shadow p-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6 transition-all hover:shadow-xl"
+              >
                 <div className="flex items-center">
                   <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,14 +119,20 @@ function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Quizzes Taken</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">{stats?.totalQuizzes || 0}</dd>
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Quizzes Taken</dt>
+                      <dd className="text-2xl font-semibold text-gray-900 dark:text-white">{stats?.totalQuizzes || 0}</dd>
                     </dl>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-white rounded-lg shadow p-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.3 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6 transition-all hover:shadow-xl"
+              >
                 <div className="flex items-center">
                   <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,14 +141,20 @@ function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Average Score</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">{stats?.averageScore || 0}%</dd>
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Average Score</dt>
+                      <dd className="text-2xl font-semibold text-gray-900 dark:text-white">{stats?.averageScore || 0}%</dd>
                     </dl>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-white rounded-lg shadow p-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.4 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6 transition-all hover:shadow-xl"
+              >
                 <div className="flex items-center">
                   <div className="flex-shrink-0 bg-purple-500 rounded-md p-3">
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -137,14 +163,20 @@ function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Courses</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">{stats?.totalCourses || 0}</dd>
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Courses</dt>
+                      <dd className="text-2xl font-semibold text-gray-900 dark:text-white">{stats?.totalCourses || 0}</dd>
                     </dl>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-white rounded-lg shadow p-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.5 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6 transition-all hover:shadow-xl"
+              >
                 <div className="flex items-center">
                   <div className="flex-shrink-0 bg-red-500 rounded-md p-3">
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -153,51 +185,51 @@ function Dashboard() {
                   </div>
                   <div className="ml-5 w-0 flex-1">
                     <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Study Streak</dt>
-                      <dd className="text-2xl font-semibold text-gray-900">{stats?.studyStreak || 0} days</dd>
+                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Study Streak</dt>
+                      <dd className="text-2xl font-semibold text-gray-900 dark:text-white">{stats?.studyStreak || 0} days</dd>
                     </dl>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Quiz Performance Over Time */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quiz Performance (Last 14 Days)</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quiz Performance (Last 14 Days)</h3>
                 {quizPerformance.length > 0 ? (
                   <ResponsiveContainer width="100%" height={250}>
                     <LineChart data={quizPerformance}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" fontSize={12} />
-                      <YAxis domain={[0, 100]} fontSize={12} />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="date" fontSize={12} stroke="#9CA3AF" />
+                      <YAxis domain={[0, 100]} fontSize={12} stroke="#9CA3AF" />
+                      <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '8px', color: '#fff' }} />
                       <Legend />
                       <Line type="monotone" dataKey="averageScore" stroke="#3B82F6" name="Avg Score" strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="text-gray-500 text-center py-16">No quiz data yet. Start taking quizzes to see your progress!</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-center py-16">No quiz data yet. Start taking quizzes to see your progress!</p>
                 )}
               </div>
 
               {/* Course Performance */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Performance</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Course Performance</h3>
                 {coursePerformance.length > 0 ? (
                   <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={coursePerformance}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="courseName" fontSize={12} />
-                      <YAxis domain={[0, 100]} fontSize={12} />
-                      <Tooltip />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="courseName" fontSize={12} stroke="#9CA3AF" />
+                      <YAxis domain={[0, 100]} fontSize={12} stroke="#9CA3AF" />
+                      <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '8px', color: '#fff' }} />
                       <Legend />
                       <Bar dataKey="averageScore" fill="#10B981" name="Avg Score" />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <p className="text-gray-500 text-center py-16">No course data yet.</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-center py-16">No course data yet.</p>
                 )}
               </div>
             </div>
@@ -205,51 +237,51 @@ function Dashboard() {
             {/* Recent Activity & Weak Areas */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Recent Activity */}
-              <div className="bg-white rounded-lg shadow">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50">
+                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
                 </div>
                 <div className="p-6">
                   {recentActivity.length > 0 ? (
                     <div className="space-y-4">
                       {recentActivity.map(activity => (
-                        <div key={activity.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+                        <div key={activity.id} className="flex items-center justify-between border-b dark:border-gray-700 pb-3 last:border-0">
                           <div className="flex-1">
-                            <p className="font-medium text-gray-900">{activity.quizTitle}</p>
-                            <p className="text-sm text-gray-500">{activity.courseName}</p>
-                            <p className="text-xs text-gray-400">{new Date(activity.completedAt).toLocaleDateString()}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{activity.quizTitle}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{activity.courseName}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">{new Date(activity.completedAt).toLocaleDateString()}</p>
                           </div>
                           <div className="text-right">
-                            <p className={`text-2xl font-bold ${activity.score >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                            <p className={`text-2xl font-bold ${activity.score >= 70 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                               {activity.score}%
                             </p>
-                            <p className="text-xs text-gray-500">{activity.correctCount}/{activity.totalQuestions}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{activity.correctCount}/{activity.totalQuestions}</p>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center py-8">No recent activity</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-center py-8">No recent activity</p>
                   )}
                 </div>
               </div>
 
               {/* Weak Areas */}
-              <div className="bg-white rounded-lg shadow">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900">Areas to Improve</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50">
+                <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Areas to Improve</h3>
                 </div>
                 <div className="p-6">
                   {weakAreas.length > 0 ? (
                     <div className="space-y-4">
                       {weakAreas.map((area, index) => (
                         <div key={index} className="border-l-4 border-red-500 pl-4 py-2">
-                          <p className="font-medium text-gray-900">{area.courseName}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{area.courseName}</p>
                           <div className="flex items-center justify-between mt-1">
-                            <p className="text-sm text-gray-500">{area.attemptsCount} attempts</p>
-                            <p className="text-lg font-semibold text-red-600">{area.averageScore}%</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{area.attemptsCount} attempts</p>
+                            <p className="text-lg font-semibold text-red-600 dark:text-red-400">{area.averageScore}%</p>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">💡 Spend more time reviewing this course</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">💡 Spend more time reviewing this course</p>
                         </div>
                       ))}
                     </div>
@@ -258,7 +290,7 @@ function Dashboard() {
                       <svg className="w-12 h-12 mx-auto text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <p className="text-gray-500">Great job! All courses above 70%</p>
+                      <p className="text-gray-500 dark:text-gray-400">Great job! All courses above 70%</p>
                     </div>
                   )}
                 </div>
@@ -266,21 +298,21 @@ function Dashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow mb-8">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 mb-8">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Quick Actions</h3>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Link
                     to="/files"
-                    className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                    className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <div className="text-center">
-                      <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
-                      <span className="mt-2 block text-sm font-medium text-gray-900">
+                      <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
                         Upload Files
                       </span>
                     </div>
@@ -288,13 +320,13 @@ function Dashboard() {
 
                   <Link
                     to="/quizzes"
-                    className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50 transition-colors"
+                    className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <div className="text-center">
-                      <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                       </svg>
-                      <span className="mt-2 block text-sm font-medium text-gray-900">
+                      <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
                         Take Quiz
                       </span>
                     </div>
@@ -302,13 +334,13 @@ function Dashboard() {
 
                   <Link
                     to="/tutor"
-                    className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors"
+                    className="flex items-center justify-center px-6 py-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <div className="text-center">
-                      <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
-                      <span className="mt-2 block text-sm font-medium text-gray-900">
+                      <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
                         Smart Tutor
                       </span>
                     </div>
@@ -318,17 +350,17 @@ function Dashboard() {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
               </div>
               <div className="p-6">
                 <div className="text-center py-12">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                   </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No activity yet</h3>
-                  <p className="mt-1 text-sm text-gray-500">Get started by uploading your first file.</p>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No activity yet</h3>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Get started by uploading your first file.</p>
                 </div>
               </div>
             </div>
