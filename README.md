@@ -1,0 +1,146 @@
+# 📚 Learnify - Smart Learning Platform
+
+A full-stack learning management system with AI-powered features, file management, quiz generation, and smart tutoring.
+
+## 🚀 Tech Stack
+
+### Frontend
+- React 19
+- Vite
+- Tailwind CSS
+- Clerk Authentication
+- React Router DOM
+- Axios
+
+### Backend
+- Node.js + Express
+- MongoDB + Mongoose
+- Clerk SDK
+- Multer (file uploads)
+- CORS, Dotenv
+
+## 📁 Project Structure
+
+```
+LEARNIFY/
+├── client/          # React frontend
+│   ├── src/
+│   ├── public/
+│   ├── .env
+│   └── vite.config.js
+├── server/          # Express backend
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   ├── .env
+│   └── server.js
+└── .gitignore
+```
+
+## 🛠️ Setup Instructions
+
+### Prerequisites
+- Node.js (v18 or higher)
+- MongoDB (local or Atlas)
+- Clerk account ([clerk.dev](https://clerk.dev))
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd LEARNIFY
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Install client dependencies
+   cd client
+   npm install
+
+   # Install server dependencies
+   cd ../server
+   npm install
+   ```
+
+3. **Configure environment variables**
+   
+   **Client** (`client/.env`):
+   ```env
+   VITE_API_BASE_URL=http://localhost:5000
+   VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+   ```
+
+   **Server** (`server/.env`):
+   ```env
+   PORT=5000
+   CLERK_SECRET_KEY=your_clerk_secret_key
+   MONGODB_URI=mongodb://localhost:27017/learnifydb
+   ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+   ```
+
+4. **Start MongoDB**
+   ```bash
+   # If running locally
+   mongod
+   ```
+
+5. **Run the application**
+
+   **Backend** (Terminal 1):
+   ```bash
+   cd server
+   npm run dev
+   ```
+
+   **Frontend** (Terminal 2):
+   ```bash
+   cd client
+   npm run dev
+   ```
+
+6. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:5000
+
+## 🔐 Clerk Setup
+
+1. Go to [dashboard.clerk.com](https://dashboard.clerk.com)
+2. Create a new application
+3. Copy your **Publishable Key** → client `.env`
+4. Copy your **Secret Key** → server `.env`
+
+## 📋 Available Scripts
+
+### Client
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+### Server
+- `npm run dev` - Start with auto-reload
+- `npm start` - Start production server
+
+## 🎯 Features Roadmap
+
+- [x] **Phase 1**: Project setup, authentication
+- [ ] **Phase 2**: Clerk integration
+- [ ] **Phase 3**: File & folder management
+- [ ] **Phase 4**: Quiz system
+- [ ] **Phase 5**: Quiz player & corrections
+- [ ] **Phase 6**: Smart tutor (keyword search)
+- [ ] **Phase 7**: Progress tracking
+- [ ] **Phase 8**: Search & mixed papers
+- [ ] **Phase 9**: UI/UX polish
+
+## 📝 License
+
+ISC
+
+---
+
+Built with ❤️ for smarter learning
