@@ -1,4 +1,4 @@
-import { clerkClient } from '@clerk/clerk-sdk-node'
+import { clerkClient, verifyToken } from '@clerk/clerk-sdk-node'
 
 // Middleware to verify Clerk authentication
 export const requireAuth = async (req, res, next) => {
@@ -9,27 +9,26 @@ export const requireAuth = async (req, res, next) => {
       return res.status(401).json({ error: 'No authorization token provided' })
     }
 
-    // Verify the session token with Clerk
-    const session = await clerkClient.sessions.verifySession(sessionToken)
+    // Verify the JWT token (networkless verification)
+    const payload = await verifyToken(sessionToken, {
+      secretKey: process.env.CLERK_SECRET_KEY
+    })
     
-    if (!session) {
-      return res.status(401).json({ error: 'Invalid session' })
+    if (!payload || !payload.sub) {
+      return res.status(401).json({ error: 'Invalid token' })
     }
 
-    // Get user information
-    const user = await clerkClient.users.getUser(session.userId)
-    
     // Attach user info to request
     req.auth = {
-      userId: user.id,
-      sessionId: session.id,
-      user: user
+      userId: payload.sub,
+      sessionId: payload.sid,
+      claims: payload
     }
 
     next()
   } catch (error) {
     console.error('Auth middleware error:', error)
-    return res.status(401).json({ error: 'Authentication failed' })
+    return res.status(401).json({ error: 'Authentication failed', details: error.message })
   }
 }
 
@@ -42,14 +41,15 @@ export const optionalAuth = async (req, res, next) => {
       return next()
     }
 
-    const session = await clerkClient.sessions.verifySession(sessionToken)
+    const payload = await verifyToken(sessionToken, {
+      secretKey: process.env.CLERK_SECRET_KEY
+    })
     
-    if (session) {
-      const user = await clerkClient.users.getUser(session.userId)
+    if (payload && payload.sub) {
       req.auth = {
-        userId: user.id,
-        sessionId: session.id,
-        user: user
+        userId: payload.sub,
+        sessionId: payload.sid,
+        claims: payload
       }
     }
 

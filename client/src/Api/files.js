@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+// Use proxy for API calls (Vite will proxy /api to http://localhost:5000)
+const API_URL = ''
 
 // Get auth token from Clerk
 const getAuthToken = async () => {

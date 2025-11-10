@@ -56,13 +56,16 @@ function FilesPage() {
 
   const handleCreateYear = async (e) => {
     e.preventDefault()
+    console.log('Creating year:', newYearName)
     try {
-      await createYear(newYearName)
+      const result = await createYear(newYearName)
+      console.log('Year created:', result)
       setNewYearName('')
       setShowYearModal(false)
       loadYears()
     } catch (error) {
       console.error('Error creating year:', error)
+      alert('Failed to create year: ' + (error.response?.data?.message || error.message))
     }
   }
 
@@ -122,26 +125,26 @@ function FilesPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm z-10">
+        <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
-              <h2 className="text-2xl font-bold text-gray-900">Files & Folders</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Files & Folders</h2>
               <UserButton afterSignOutUrl="/sign-in" />
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Years Column */}
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-4 border-b flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-900">Years</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Years</h3>
                   <button
                     onClick={() => setShowYearModal(true)}
                     className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
@@ -151,25 +154,25 @@ function FilesPage() {
                 </div>
                 <div className="p-4 space-y-2 max-h-96 overflow-y-auto">
                   {loading ? (
-                    <p className="text-gray-500 text-sm">Loading...</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
                   ) : years.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No years yet</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">No years yet</p>
                   ) : (
                     years.map((year) => (
                       <div
                         key={year._id}
-                        className={`p-3 rounded cursor-pointer flex justify-between items-center ${
-                          selectedYear === year._id ? 'bg-blue-100 border border-blue-300' : 'hover:bg-gray-100'
+                        className={`p-3 rounded cursor-pointer flex justify-between items-center transition-colors ${
+                          selectedYear === year._id ? 'bg-blue-100 dark:bg-blue-900 border border-blue-300 dark:border-blue-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                         onClick={() => loadCourses(year._id)}
                       >
-                        <span className="font-medium">{year.name}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{year.name}</span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             handleDeleteYear(year._id)
                           }}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
                           🗑️
                         </button>
@@ -180,9 +183,9 @@ function FilesPage() {
               </div>
 
               {/* Courses Column */}
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-4 border-b flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-900">Courses</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Courses</h3>
                   <button
                     onClick={() => setShowCourseModal(true)}
                     disabled={!selectedYear}
@@ -197,25 +200,25 @@ function FilesPage() {
                 </div>
                 <div className="p-4 space-y-2 max-h-96 overflow-y-auto">
                   {!selectedYear ? (
-                    <p className="text-gray-500 text-sm">Select a year first</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Select a year first</p>
                   ) : courses.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No courses yet</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">No courses yet</p>
                   ) : (
                     courses.map((course) => (
                       <div
                         key={course._id}
-                        className={`p-3 rounded cursor-pointer flex justify-between items-center ${
-                          selectedCourse === course._id ? 'bg-green-100 border border-green-300' : 'hover:bg-gray-100'
+                        className={`p-3 rounded cursor-pointer flex justify-between items-center transition-colors ${
+                          selectedCourse === course._id ? 'bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                         onClick={() => loadFiles(course._id)}
                       >
-                        <span className="font-medium">{course.name}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{course.name}</span>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             handleDeleteCourse(course._id)
                           }}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
                           🗑️
                         </button>
@@ -226,9 +229,9 @@ function FilesPage() {
               </div>
 
               {/* Files Column */}
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-4 border-b flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-900">Files</h3>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Files</h3>
                   <button
                     onClick={() => setShowUploadModal(true)}
                     disabled={!selectedCourse}
@@ -243,22 +246,22 @@ function FilesPage() {
                 </div>
                 <div className="p-4 space-y-2 max-h-96 overflow-y-auto">
                   {!selectedCourse ? (
-                    <p className="text-gray-500 text-sm">Select a course first</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Select a course first</p>
                   ) : files.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No files yet</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">No files yet</p>
                   ) : (
                     files.map((file) => (
                       <div
                         key={file._id}
-                        className="p-3 rounded hover:bg-gray-100 flex justify-between items-center"
+                        className="p-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex justify-between items-center transition-colors"
                       >
                         <div className="flex-1">
-                          <p className="font-medium text-sm">{file.name}</p>
-                          <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(2)} KB</p>
+                          <p className="font-medium text-sm text-gray-900 dark:text-white">{file.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{(file.size / 1024).toFixed(2)} KB</p>
                         </div>
                         <button
                           onClick={() => handleDeleteFile(file._id)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
                           🗑️
                         </button>
@@ -274,23 +277,24 @@ function FilesPage() {
 
       {/* Add Year Modal */}
       {showYearModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="text-lg font-bold mb-4">Add New Year</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowYearModal(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-96" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Add New Year</h3>
             <form onSubmit={handleCreateYear}>
               <input
                 type="text"
                 value={newYearName}
                 onChange={(e) => setNewYearName(e.target.value)}
                 placeholder="e.g., Year 1, 2024-2025"
-                className="w-full px-3 py-2 border rounded mb-4"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 required
+                autoFocus
               />
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setShowYearModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
                 >
                   Cancel
                 </button>
@@ -308,23 +312,24 @@ function FilesPage() {
 
       {/* Add Course Modal */}
       {showCourseModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="text-lg font-bold mb-4">Add New Course</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowCourseModal(false)}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-96" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Add New Course</h3>
             <form onSubmit={handleCreateCourse}>
               <input
                 type="text"
                 value={newCourseName}
                 onChange={(e) => setNewCourseName(e.target.value)}
                 placeholder="e.g., Mathematics, Physics"
-                className="w-full px-3 py-2 border rounded mb-4"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 required
+                autoFocus
               />
               <div className="flex justify-end space-x-2">
                 <button
                   type="button"
                   onClick={() => setShowCourseModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
                 >
                   Cancel
                 </button>

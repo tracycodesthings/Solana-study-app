@@ -15,6 +15,8 @@ function MixedPapers() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState(null)
   const [searching, setSearching] = useState(false)
+  const [uploadingPaper, setUploadingPaper] = useState(false)
+  const [uploadFile, setUploadFile] = useState(null)
 
   const getAuthToken = async () => {
     return await window.Clerk.session.getToken()
@@ -84,6 +86,37 @@ function MixedPapers() {
     }
   }
 
+  const handleUploadMixedPaper = async () => {
+    if (!uploadFile) {
+      setError('Please select a file to upload')
+      return
+    }
+
+    setUploadingPaper(true)
+    setError('')
+
+    try {
+      const token = await getAuthToken()
+      const formData = new FormData()
+      formData.append('file', uploadFile)
+
+      const response = await axios.post('/api/search/upload-mixed-paper', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+
+      // Store the parsed mixed paper and navigate to player
+      sessionStorage.setItem('mixedPaper', JSON.stringify(response.data))
+      navigate('/mixed-paper-player')
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to upload mixed paper')
+    } finally {
+      setUploadingPaper(false)
+    }
+  }
+
   const handleSearch = async () => {
     if (!searchQuery.trim() || searchQuery.trim().length < 2) {
       setError('Search query must be at least 2 characters')
@@ -116,19 +149,19 @@ function MixedPapers() {
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm z-10">
+        <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Mixed Papers & Search</h2>
-                <p className="text-sm text-gray-600">Generate custom practice papers and search your materials</p>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Mixed Papers & Search</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Generate custom practice papers, upload existing papers, and search your materials</p>
               </div>
               <UserButton afterSignOutUrl="/sign-in" />
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {error && (
               <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -136,14 +169,14 @@ function MixedPapers() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Mixed Paper Generator */}
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6">
                 <div className="flex items-center mb-4">
                   <svg className="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <h3 className="text-xl font-bold text-gray-900">Generate Mixed Paper</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Generate Mixed Paper</h3>
                 </div>
                 
                 <p className="text-sm text-gray-600 mb-4">
@@ -202,13 +235,62 @@ function MixedPapers() {
                 </button>
               </div>
 
+              {/* Upload Mixed Paper */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6">
+                <div className="flex items-center mb-4">
+                  <svg className="w-6 h-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Upload Mixed Paper</h3>
+                </div>
+                
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Upload a text file with your mixed paper questions and we'll recreate it for you to practice
+                </p>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Select Mixed Paper File (.txt)
+                  </label>
+                  <input
+                    type="file"
+                    accept=".txt"
+                    onChange={(e) => setUploadFile(e.target.files[0])}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                  {uploadFile && (
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                      Selected: {uploadFile.name}
+                    </p>
+                  )}
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-blue-800 dark:text-blue-300 font-medium mb-2">Format Requirements:</p>
+                  <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1 list-disc list-inside">
+                    <li>Questions separated by blank lines</li>
+                    <li>MCQ: Q: [question] A) B) C) D) Correct: [letter]</li>
+                    <li>SAQ: Q: [question] A: [answer]</li>
+                    <li>Explanation: Exp: [explanation] (optional)</li>
+                  </ul>
+                </div>
+
+                <button
+                  onClick={handleUploadMixedPaper}
+                  disabled={!uploadFile || uploadingPaper}
+                  className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {uploadingPaper ? 'Processing...' : 'Upload & Start Paper'}
+                </button>
+              </div>
+
               {/* Global Search */}
-              <div className="bg-white rounded-lg shadow p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6">
                 <div className="flex items-center mb-4">
                   <svg className="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  <h3 className="text-xl font-bold text-gray-900">Search Materials</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Search Materials</h3>
                 </div>
 
                 <p className="text-sm text-gray-600 mb-4">

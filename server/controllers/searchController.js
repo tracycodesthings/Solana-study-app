@@ -167,3 +167,75 @@ export const generateMixedPaper = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+
+// Upload and parse existing mixed paper
+export const uploadMixedPaper = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' })
+    }
+
+    const fileContent = req.file.buffer.toString('utf-8')
+    const questions = []
+    
+    // Split by double newlines to get question blocks
+    const blocks = fileContent.split(/\n\s*\n/).filter(b => b.trim())
+    
+    for (const block of blocks) {
+      const lines = block.split('\n').map(l => l.trim()).filter(l => l)
+      
+      if (lines.length === 0) continue
+      
+      let question = null
+      let options = []
+      let correctAnswer = ''
+      let explanation = ''
+      let questionType = 'mcq'
+      
+      for (const line of lines) {
+        if (line.startsWith('Q:') || line.startsWith('Question:')) {
+          question = line.replace(/^(Q:|Question:)\s*/, '').trim()
+        } else if (/^[A-D]\)/.test(line)) {
+          options.push(line)
+        } else if (line.startsWith('Correct:') || line.startsWith('Answer:')) {
+          correctAnswer = line.replace(/^(Correct:|Answer:)\s*/, '').trim()
+          if (correctAnswer.length > 2) {
+            questionType = 'saq'
+          }
+        } else if (line.startsWith('A:') && questionType !== 'mcq') {
+          correctAnswer = line.replace(/^A:\s*/, '').trim()
+          questionType = 'saq'
+        } else if (line.startsWith('Exp:') || line.startsWith('Explanation:')) {
+          explanation = line.replace(/^(Exp:|Explanation:)\s*/, '').trim()
+        }
+      }
+      
+      if (question) {
+        const parsedQuestion = {
+          question,
+          type: questionType,
+          options: options.length > 0 ? options : undefined,
+          correctAnswer,
+          explanation: explanation || undefined,
+          source: 'Uploaded Mixed Paper'
+        }
+        
+        questions.push(parsedQuestion)
+      }
+    }
+    
+    if (questions.length === 0) {
+      return res.status(400).json({ error: 'No valid questions found in the file' })
+    }
+    
+    res.json({
+      title: 'Uploaded Mixed Paper',
+      totalQuestions: questions.length,
+      questions,
+      courses: 'Custom Upload'
+    })
+  } catch (error) {
+    console.error('Upload mixed paper error:', error)
+    res.status(500).json({ error: error.message })
+  }
+}
