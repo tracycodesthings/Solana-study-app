@@ -1,16 +1,27 @@
 import express from 'express'
 import { requireAuth } from '../middleware/authMiddleware.js'
-import { searchNotes, getRelatedQuizzes } from '../controllers/tutorController.js'
+import {
+  sendMessage,
+  getConversations,
+  getConversation,
+  deleteConversation
+} from '../controllers/tutorController.js'
 
 const router = express.Router()
 
 // All tutor routes require authentication
 router.use(requireAuth)
 
-// GET /api/tutor/search?topic=... - Search notes for topic
-router.get('/search', searchNotes)
+// POST /api/tutor/message - Send message to tutor
+router.post('/message', sendMessage)
 
-// GET /api/tutor/related-quizzes/:topic - Get quizzes related to topic
-router.get('/related-quizzes/:topic', getRelatedQuizzes)
+// GET /api/tutor/conversations/:courseId - Get all conversations for a course
+router.get('/conversations/:courseId', getConversations)
+
+// GET /api/tutor/conversation/:conversationId - Get single conversation
+router.get('/conversation/:conversationId', getConversation)
+
+// DELETE /api/tutor/conversation/:conversationId - Delete conversation
+router.delete('/conversation/:conversationId', deleteConversation)
 
 export default router
