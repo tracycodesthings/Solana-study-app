@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { UserButton } from '@clerk/clerk-react'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 
 function QuizPage() {
+  const navigate = useNavigate()
   const [years, setYears] = useState([])
   const [courses, setCourses] = useState([])
   const [quizzes, setQuizzes] = useState({ generated: [], uploaded: [] })
@@ -282,7 +284,10 @@ function QuizPage() {
                                   </p>
                                 </div>
                                 <div className="flex gap-2">
-                                  <button className="text-blue-600 hover:text-blue-700 text-sm">
+                                  <button 
+                                    onClick={() => navigate(`/quiz/${quiz._id}`)}
+                                    className="text-blue-600 hover:text-blue-700 text-sm"
+                                  >
                                     Take Quiz
                                   </button>
                                   <button

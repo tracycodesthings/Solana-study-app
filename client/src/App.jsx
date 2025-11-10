@@ -3,6 +3,7 @@ import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react'
 import Dashboard from './pages/Dashboard'
 import FilesPage from './pages/FilesPage'
 import QuizPage from './pages/QuizPage'
+import QuizPlayer from './components/QuizPlayer'
 import TutorPage from './pages/TutorPage'
 import MixedPapers from './pages/MixedPapers'
 import SignInPage from './pages/SignInPage'
@@ -50,6 +51,19 @@ function App() {
             <>
               <SignedIn>
                 <QuizPage />
+              </SignedIn>
+              <SignedOut>
+                <RedirectToSignIn />
+              </SignedOut>
+            </>
+          }
+        />
+        <Route
+          path="/quiz/:quizId"
+          element={
+            <>
+              <SignedIn>
+                <QuizPlayer />
               </SignedIn>
               <SignedOut>
                 <RedirectToSignIn />
