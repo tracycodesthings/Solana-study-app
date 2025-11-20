@@ -1,23 +1,44 @@
-# 📚 Solana - Smart Learning Platform
+# 📚 Solana - AI-Powered Study Platform
 
-A full-stack learning management system with AI-powered features, file management, quiz generation, and smart tutoring.
+> A comprehensive learning management system with AI quiz generation, smart tutoring, and advanced file processing capabilities.
+
+[![Deploy Status](https://img.shields.io/badge/status-production-success)](https://github.com/tracycodesthings/Solana-study-app)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/license-ISC-blue)](LICENSE)
+
+## ✨ Features
+
+- 🤖 **AI Quiz Generation** - Generate quizzes from uploaded study materials using Google Gemini AI
+- 💬 **Smart Tutor** - AI-powered chatbot for personalized learning assistance
+- 📄 **Multi-Format Support** - Upload PDFs, Word docs, PowerPoint, images, and more
+- 📊 **Progress Tracking** - Monitor quiz performance with visual analytics
+- 🔐 **Secure Authentication** - Clerk-powered user management
+- 🎯 **Organized Content** - Structure learning by years, courses, and topics
+- 📱 **Responsive Design** - Beautiful UI that works on all devices
 
 ## 🚀 Tech Stack
 
 ### Frontend
-- React 19
-- Vite
-- Tailwind CSS
-- Clerk Authentication
-- React Router DOM
-- Axios
+- **React 19** - Modern UI library with lazy loading & code splitting
+- **Vite** - Lightning-fast build tool with HMR
+- **Tailwind CSS 4** - Utility-first styling
+- **Clerk** - Authentication & user management
+- **React Router DOM** - Client-side routing
+- **Recharts** - Data visualization
+- **Framer Motion** - Smooth animations
+- **Axios** - HTTP client
 
 ### Backend
-- Node.js + Express
-- MongoDB + Mongoose
-- Clerk SDK
-- Multer (file uploads)
-- CORS, Dotenv
+- **Node.js + Express 5** - RESTful API server
+- **MongoDB + Mongoose** - Database with ODM
+- **Google Gemini AI** - AI quiz generation
+- **Multer** - File upload handling
+- **Helmet** - Security headers
+- **Morgan** - Request logging
+- **Rate Limiting** - API protection
+- **PDF Processing** - pdfjs-dist, pdf2json
+- **Document Processing** - Mammoth (Word), JSZip (PowerPoint)
+- **OCR** - Tesseract.js for image text extraction
 
 ## 📁 Project Structure
 

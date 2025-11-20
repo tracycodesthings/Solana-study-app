@@ -10,10 +10,31 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: process.env.VITE_API_URL || 'http://localhost:5000',
         changeOrigin: true,
         secure: false
       }
     }
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: false, // Disable source maps in production
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'clerk': ['@clerk/clerk-react'],
+          'charts': ['recharts'],
+          'ui': ['framer-motion', '@radix-ui/react-dialog']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
   }
 })
