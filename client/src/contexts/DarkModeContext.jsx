@@ -17,15 +17,19 @@ export const DarkModeProvider = ({ children }) => {
   })
 
   useEffect(() => {
+    console.log('Dark mode changed to:', isDarkMode)
     if (isDarkMode) {
       document.documentElement.classList.add('dark')
+      document.body.classList.add('dark')
     } else {
       document.documentElement.classList.remove('dark')
+      document.body.classList.remove('dark')
     }
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode))
   }, [isDarkMode])
 
   const toggleDarkMode = () => {
+    console.log('Toggle clicked, current isDarkMode:', isDarkMode)
     setIsDarkMode(prev => !prev)
   }
 

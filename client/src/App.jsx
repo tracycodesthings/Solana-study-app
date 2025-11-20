@@ -5,8 +5,6 @@ import FilesPage from './pages/FilesPage'
 import QuizPage from './pages/QuizPage'
 import QuizPlayer from './components/QuizPlayer'
 import TutorPage from './pages/TutorPage'
-import MixedPapers from './pages/MixedPapers'
-import MixedPaperPlayer from './components/MixedPaperPlayer'
 import SignInPage from './pages/SignInPage'
 import SignUpPage from './pages/SignUpPage'
 import NotFound from './pages/NotFound'
@@ -78,32 +76,6 @@ function App() {
             <>
               <SignedIn>
                 <TutorPage />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn />
-              </SignedOut>
-            </>
-          }
-        />
-        <Route
-          path="/mixed-papers"
-          element={
-            <>
-              <SignedIn>
-                <MixedPapers />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn />
-              </SignedOut>
-            </>
-          }
-        />
-        <Route
-          path="/mixed-paper-player"
-          element={
-            <>
-              <SignedIn>
-                <MixedPaperPlayer />
               </SignedIn>
               <SignedOut>
                 <RedirectToSignIn />

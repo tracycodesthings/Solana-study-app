@@ -174,16 +174,16 @@ function TutorPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm z-10">
+        <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Smart Tutor</h2>
-                <p className="text-sm text-gray-600">AI-powered study assistant</p>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Smart Tutor</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">AI-powered study assistant</p>
               </div>
               <UserButton afterSignOutUrl="/sign-in" />
             </div>
@@ -193,14 +193,14 @@ function TutorPage() {
         <main className="flex-1 overflow-hidden">
           <div className="h-full flex">
             {/* Sidebar - Year/Course Selection */}
-            <div className="w-64 bg-white border-r flex flex-col">
-              <div className="p-4 border-b">
-                <h3 className="font-semibold text-gray-900 mb-3">Select Course</h3>
+            <div className="w-64 bg-white dark:bg-gray-800 border-r dark:border-gray-700 flex flex-col">
+              <div className="p-4 border-b dark:border-gray-700">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Select Course</h3>
                 
                 <select
                   value={selectedYear || ''}
                   onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full mb-2 px-3 py-2 border border-gray-300 rounded text-sm"
+                  className="w-full mb-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
                   <option value="">Choose Year...</option>
                   {years.map(year => (
@@ -212,7 +212,7 @@ function TutorPage() {
                   value={selectedCourse || ''}
                   onChange={(e) => setSelectedCourse(e.target.value)}
                   disabled={!selectedYear}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm disabled:bg-gray-100"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm disabled:bg-gray-100 dark:disabled:bg-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
                   <option value="">Choose Course...</option>
                   {courses.map(course => (
@@ -225,7 +225,7 @@ function TutorPage() {
               {selectedCourse && (
                 <div className="flex-1 overflow-y-auto p-4">
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-sm font-semibold text-gray-700">Conversations</h4>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Conversations</h4>
                     <button
                       onClick={handleNewConversation}
                       className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
@@ -240,18 +240,18 @@ function TutorPage() {
                         key={conv._id}
                         className={`p-2 rounded cursor-pointer group ${
                           selectedConversation === conv._id
-                            ? 'bg-blue-50 border border-blue-200'
-                            : 'hover:bg-gray-50 border border-transparent'
+                            ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border border-transparent'
                         }`}
                       >
                         <div
                           onClick={() => loadConversation(conv._id)}
                           className="flex-1"
                         >
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                             {conv.title}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
                             {new Date(conv.updatedAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -260,7 +260,7 @@ function TutorPage() {
                             e.stopPropagation()
                             handleDeleteConversation(conv._id)
                           }}
-                          className="text-xs text-red-600 hover:text-red-700 opacity-0 group-hover:opacity-100"
+                          className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 opacity-0 group-hover:opacity-100"
                         >
                           Delete
                         </button>
@@ -272,10 +272,10 @@ function TutorPage() {
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col bg-gray-50">
+            <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-900">
               {!selectedCourse ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <div className="text-center text-gray-500">
+                  <div className="text-center text-gray-500 dark:text-gray-400">
                     <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
@@ -316,19 +316,19 @@ function TutorPage() {
                           className={`max-w-3xl rounded-lg px-4 py-3 ${
                             msg.role === 'user'
                               ? 'bg-blue-600 text-white'
-                              : 'bg-white text-gray-900 border border-gray-200'
+                              : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
                           }`}
                         >
                           {msg.role === 'assistant' && (
                             <div className="flex items-center mb-2">
-                              <svg className="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                              <svg className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                               </svg>
-                              <span className="text-sm font-semibold text-gray-700">Study Tutor</span>
+                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Study Tutor</span>
                             </div>
                           )}
                           <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
-                          <p className={`text-xs mt-2 ${msg.role === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
+                          <p className={`text-xs mt-2 ${msg.role === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}>
                             {new Date(msg.timestamp).toLocaleTimeString()}
                           </p>
                         </div>
@@ -337,7 +337,7 @@ function TutorPage() {
                     
                     {loading && (
                       <div className="flex justify-start">
-                        <div className="bg-white text-gray-900 border border-gray-200 rounded-lg px-4 py-3">
+                        <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3">
                           <div className="flex items-center space-x-2">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
@@ -351,9 +351,9 @@ function TutorPage() {
                   </div>
 
                   {/* Input Area */}
-                  <div className="border-t bg-white p-4">
+                  <div className="border-t dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
                     {error && (
-                      <div className="mb-3 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+                      <div className="mb-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-3 py-2 rounded text-sm">
                         {error}
                       </div>
                     )}
@@ -365,7 +365,7 @@ function TutorPage() {
                         onChange={(e) => setInputMessage(e.target.value)}
                         placeholder="Ask me anything about studying..."
                         disabled={loading}
-                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                        className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:disabled:bg-gray-700"
                       />
                       <button
                         type="submit"

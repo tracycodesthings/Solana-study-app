@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Head outline -->
+  <ellipse cx="32" cy="32" rx="20" ry="24" fill="#8B5CF6" stroke="#6D28D9" stroke-width="2"/>
+  
+  <!-- Brain structure -->
+  <g fill="#A78BFA" stroke="#7C3AED" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left hemisphere curves -->
+    <path d="M 22 20 Q 18 22 18 26 Q 18 30 20 32 Q 18 34 18 38 Q 18 42 22 44" fill="none"/>
+    <path d="M 25 22 Q 23 24 23 27 Q 23 30 25 32 Q 23 34 23 37 Q 23 40 25 42" fill="none"/>
+    <path d="M 28 24 Q 27 26 27 29 Q 27 32 28 34 Q 27 36 27 39 Q 27 41 28 42" fill="none"/>
+    
+    <!-- Right hemisphere curves -->
+    <path d="M 42 20 Q 46 22 46 26 Q 46 30 44 32 Q 46 34 46 38 Q 46 42 42 44" fill="none"/>
+    <path d="M 39 22 Q 41 24 41 27 Q 41 30 39 32 Q 41 34 41 37 Q 41 40 39 42" fill="none"/>
+    <path d="M 36 24 Q 37 26 37 29 Q 37 32 36 34 Q 37 36 37 39 Q 37 41 36 42" fill="none"/>
+    
+    <!-- Center dividing line -->
+    <path d="M 32 18 L 32 46" stroke="#6D28D9" stroke-width="2"/>
+    
+    <!-- Additional brain folds -->
+    <circle cx="25" cy="28" r="2" fill="#DDD6FE"/>
+    <circle cx="39" cy="28" r="2" fill="#DDD6FE"/>
+    <circle cx="25" cy="36" r="2" fill="#DDD6FE"/>
+    <circle cx="39" cy="36" r="2" fill="#DDD6FE"/>
+  </g>
+</svg>

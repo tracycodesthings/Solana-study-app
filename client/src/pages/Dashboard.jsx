@@ -15,6 +15,9 @@ function Dashboard() {
   const [recentActivity, setRecentActivity] = useState([])
   const [weakAreas, setWeakAreas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState(null)
+  const [searching, setSearching] = useState(false)
 
   const getAuthToken = async () => {
     return await window.Clerk.session.getToken()
@@ -46,6 +49,26 @@ function Dashboard() {
       console.error('Failed to load dashboard data:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      return
+    }
+
+    setSearching(true)
+
+    try {
+      const token = await getAuthToken()
+      const response = await axios.get(`/api/search?query=${encodeURIComponent(searchQuery)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setSearchResults(response.data)
+    } catch (err) {
+      console.error('Search failed:', err)
+    } finally {
+      setSearching(false)
     }
   }
 
@@ -295,6 +318,95 @@ function Dashboard() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Search Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-6 mb-8">
+              <div className="flex items-center mb-4">
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Search Your Materials</h3>
+              </div>
+
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Search across all your files, quizzes, and courses
+              </p>
+
+              <div className="flex gap-2 mb-6">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="Search for files, quizzes, courses..."
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleSearch}
+                  disabled={searching || searchQuery.trim().length < 2}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {searching ? 'Searching...' : 'Search'}
+                </button>
+              </div>
+
+              {/* Search Results */}
+              {searchResults && (
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {/* Files */}
+                  {searchResults.files.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Files ({searchResults.files.length})</h4>
+                      <div className="space-y-2">
+                        {searchResults.files.map(file => (
+                          <div key={file.id} className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
+                            <p className="font-medium text-sm text-gray-900 dark:text-white">{file.name}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">{file.course}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Quizzes */}
+                  {searchResults.quizzes.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Quizzes ({searchResults.quizzes.length})</h4>
+                      <div className="space-y-2">
+                        {searchResults.quizzes.map(quiz => (
+                          <div key={quiz.id} className="p-3 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
+                            <p className="font-medium text-sm text-gray-900 dark:text-white">{quiz.title}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">{quiz.course} • {quiz.questions} questions</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Courses */}
+                  {searchResults.courses.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Courses ({searchResults.courses.length})</h4>
+                      <div className="space-y-2">
+                        {searchResults.courses.map(course => (
+                          <div key={course.id} className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded border border-purple-200 dark:border-purple-800">
+                            <p className="font-medium text-sm text-gray-900 dark:text-white">{course.name}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">{course.filesCount} files • {course.quizzesCount} quizzes</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* No Results */}
+                  {searchResults.files.length === 0 && searchResults.quizzes.length === 0 && searchResults.courses.length === 0 && (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 dark:text-gray-400">No results found for "{searchQuery}"</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Quick Actions */}

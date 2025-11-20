@@ -5,7 +5,8 @@ import {
   uploadFile, 
   getFilesByCourse, 
   deleteFile, 
-  renameFile 
+  renameFile,
+  addLink 
 } from '../controllers/fileController.js'
 
 const router = express.Router()
@@ -33,6 +34,9 @@ router.use(requireAuth)
 
 // POST /api/files/upload - Upload a file
 router.post('/upload', upload.single('file'), uploadFile)
+
+// POST /api/files/add-link - Add an external link
+router.post('/add-link', addLink)
 
 // GET /api/files/:courseId - Get all files for a course
 router.get('/:courseId', getFilesByCourse)

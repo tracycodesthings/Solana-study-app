@@ -110,3 +110,12 @@ export const renameFile = async (fileId, name) => {
   )
   return response.data
 }
+
+export const addLink = async (courseId, name, url, linkType) => {
+  const token = await getAuthToken()
+  const response = await axios.post(`${API_URL}/api/files/add-link`, 
+    { courseId, name, url, linkType },
+    { headers: { Authorization: `Bearer ${token}` } }
+  )
+  return response.data
+}

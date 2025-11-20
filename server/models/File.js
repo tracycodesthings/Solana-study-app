@@ -8,7 +8,7 @@ const fileSchema = new mongoose.Schema({
   },
   originalName: {
     type: String,
-    required: true
+    required: false
   },
   url: {
     type: String,
@@ -21,6 +21,15 @@ const fileSchema = new mongoose.Schema({
   mimeType: {
     type: String,
     required: true
+  },
+  isLink: {
+    type: Boolean,
+    default: false
+  },
+  linkType: {
+    type: String,
+    enum: ['note', 'pastpaper'],
+    required: false
   },
   courseId: {
     type: mongoose.Schema.Types.ObjectId,

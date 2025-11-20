@@ -117,16 +117,16 @@ function QuizPlayer() {
   const progress = ((currentQuestion + 1) / quiz.questions.length) * 100
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm z-10">
+        <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{quiz.title}</h2>
-                <p className="text-sm text-gray-600">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{quiz.title}</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Question {currentQuestion + 1} of {quiz.questions.length}
                 </p>
               </div>
@@ -139,7 +139,7 @@ function QuizPlayer() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Progress Bar */}
             <div className="mb-6">
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div
                   className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
@@ -148,12 +148,12 @@ function QuizPlayer() {
             </div>
 
             {/* Question Card */}
-            <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50 p-8 mb-6">
               <div className="mb-6">
-                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
+                <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium mb-4">
                   {question.type}
                 </span>
-                <h3 className="text-xl font-semibold text-gray-900 mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
                   {question.question}
                 </h3>
               </div>
@@ -167,16 +167,17 @@ function QuizPlayer() {
                       onClick={() => handleAnswerSelect(option)}
                       className={`w-full text-left p-4 rounded-lg border-2 transition ${
                         answers[currentQuestion] === option
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-700/50'
                       }`}
                     >
                       <div className="flex items-center">
-                        <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full border-2 mr-3 
-                          ${answers[currentQuestion] === option ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'}">
+                        <span className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full border-2 mr-3 ${
+                          answers[currentQuestion] === option ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 dark:border-gray-600'
+                        }`}>
                           {String.fromCharCode(65 + index)}
                         </span>
-                        <span className="flex-1">{option}</span>
+                        <span className="flex-1 text-gray-900 dark:text-white">{option}</span>
                       </div>
                     </button>
                   ))
@@ -202,16 +203,16 @@ function QuizPlayer() {
                 Previous
               </button>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 overflow-x-auto max-w-md">
                 {quiz.questions.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentQuestion(index)}
-                    className={`w-10 h-10 rounded-full text-sm font-medium ${
+                    className={`w-10 h-10 rounded-full text-sm font-medium flex-shrink-0 ${
                       index === currentQuestion
                         ? 'bg-blue-600 text-white'
                         : answers[index]
-                        ? 'bg-green-100 text-green-800 border border-green-300'
+                        ? 'bg-gray-400 text-white'
                         : 'bg-gray-200 text-gray-600'
                     }`}
                   >

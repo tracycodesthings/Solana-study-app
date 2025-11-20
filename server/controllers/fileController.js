@@ -72,18 +72,20 @@ export const deleteFile = async (req, res) => {
       return res.status(404).json({ error: 'File not found' })
     }
 
-    // Delete physical file
-    const filePath = path.join(process.cwd(), file.url)
-    try {
-      await fs.unlink(filePath)
-    } catch (err) {
-      console.error('Error deleting physical file:', err)
+    // Delete physical file only if it's not a link
+    if (!file.isLink) {
+      const filePath = path.join(process.cwd(), file.url)
+      try {
+        await fs.unlink(filePath)
+      } catch (err) {
+        console.error('Error deleting physical file:', err)
+      }
     }
 
     // Delete database record
     await File.deleteOne({ _id: fileId })
 
-    res.json({ message: 'File deleted successfully' })
+    res.json({ message: file.isLink ? 'Link deleted successfully' : 'File deleted successfully' })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -109,6 +111,40 @@ export const renameFile = async (req, res) => {
 
     res.json(file)
   } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+// Add external link
+export const addLink = async (req, res) => {
+  try {
+    const { courseId, name, url, linkType } = req.body
+
+    if (!courseId || !name || !url) {
+      return res.status(400).json({ error: 'Course ID, name, and URL are required' })
+    }
+
+    // Verify course belongs to user
+    const course = await Course.findOne({ _id: courseId, userId: req.auth.userId })
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' })
+    }
+
+    // Create link record (stored in File model with isLink flag)
+    const link = await File.create({
+      name: name.trim(),
+      url: url.trim(),
+      isLink: true,
+      linkType: linkType || 'note',
+      courseId,
+      userId: req.auth.userId,
+      size: 0,
+      mimeType: 'link'
+    })
+
+    res.status(201).json(link)
+  } catch (error) {
+    console.error('Add link error:', error)
     res.status(500).json({ error: error.message })
   }
 }

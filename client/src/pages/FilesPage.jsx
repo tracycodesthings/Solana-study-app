@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { UserButton } from '@clerk/clerk-react'
 import Sidebar from '../components/Sidebar'
 import FileUpload from '../components/FileUpload'
-import { getYears, createYear, deleteYear, getCourses, createCourse, deleteCourse, getFiles, deleteFile, renameFile } from '../Api/files'
+import { getYears, createYear, deleteYear, getCourses, createCourse, deleteCourse, getFiles, deleteFile, renameFile, addLink } from '../Api/files'
 
 function FilesPage() {
   const [years, setYears] = useState([])
@@ -14,8 +14,12 @@ function FilesPage() {
   const [showYearModal, setShowYearModal] = useState(false)
   const [showCourseModal, setShowCourseModal] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const [showLinkModal, setShowLinkModal] = useState(false)
   const [newYearName, setNewYearName] = useState('')
   const [newCourseName, setNewCourseName] = useState('')
+  const [linkName, setLinkName] = useState('')
+  const [linkUrl, setLinkUrl] = useState('')
+  const [linkType, setLinkType] = useState('note')
 
   useEffect(() => {
     loadYears()
@@ -121,6 +125,25 @@ function FilesPage() {
     setShowUploadModal(false)
     if (selectedCourse) {
       loadFiles(selectedCourse)
+    }
+  }
+
+  const handleAddLink = async () => {
+    if (!linkName.trim() || !linkUrl.trim()) {
+      alert('Please provide both name and URL')
+      return
+    }
+    
+    try {
+      await addLink(selectedCourse, linkName, linkUrl, linkType)
+      setShowLinkModal(false)
+      setLinkName('')
+      setLinkUrl('')
+      setLinkType('note')
+      loadFiles(selectedCourse)
+    } catch (error) {
+      console.error('Error adding link:', error)
+      alert('Failed to add link: ' + (error.response?.data?.error || error.message))
     }
   }
 
@@ -231,18 +254,20 @@ function FilesPage() {
               {/* Files Column */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg dark:shadow-gray-900/50">
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">Files</h3>
-                  <button
-                    onClick={() => setShowUploadModal(true)}
-                    disabled={!selectedCourse}
-                    className={`px-3 py-1 rounded text-sm ${
-                      selectedCourse
-                        ? 'bg-purple-600 text-white hover:bg-purple-700'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    + Upload File
-                  </button>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Files & Links</h3>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowUploadModal(true)}
+                      disabled={!selectedCourse}
+                      className={`px-3 py-1 rounded text-sm ${
+                        selectedCourse
+                          ? 'bg-purple-600 text-white hover:bg-purple-700'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
+                      + Upload File
+                    </button>
+                  </div>
                 </div>
                 <div className="p-4 space-y-2 max-h-96 overflow-y-auto">
                   {!selectedCourse ? (
@@ -256,8 +281,27 @@ function FilesPage() {
                         className="p-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex justify-between items-center transition-colors"
                       >
                         <div className="flex-1">
-                          <p className="font-medium text-sm text-gray-900 dark:text-white">{file.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{(file.size / 1024).toFixed(2)} KB</p>
+                          {file.isLink ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="text-blue-600 dark:text-blue-400">🔗</span>
+                                <a 
+                                  href={file.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="font-medium text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                                >
+                                  {file.name}
+                                </a>
+                              </div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 ml-7">{file.linkType === 'note' ? 'Note' : 'Past Paper'}</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="font-medium text-sm text-gray-900 dark:text-white">{file.name}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{(file.size / 1024).toFixed(2)} KB</p>
+                            </>
+                          )}
                         </div>
                         <button
                           onClick={() => handleDeleteFile(file._id)}
@@ -353,6 +397,7 @@ function FilesPage() {
           onSuccess={handleFileUploaded}
         />
       )}
+
     </div>
   )
 }

@@ -5,14 +5,80 @@ import Quiz from '../models/Quiz.js'
 import fs from 'fs/promises'
 import path from 'path'
 
-// Smart pattern-based tutor responses
+// AI-powered tutor using Gemini
 const generateTutorResponse = async (question, courseId, userId) => {
+  try {
+    // Get course context
+    const course = await Course.findOne({ _id: courseId, userId })
+    const files = await File.find({ courseId, userId })
+    const quizzes = await Quiz.find({ courseId, userId })
+    
+    // Build context for AI
+    const contextInfo = `
+Course: ${course?.name || 'Unknown course'}
+Available materials: ${files.length} file(s), ${quizzes.length} quiz(zes)
+Student question: ${question}
+
+You are a helpful, encouraging study tutor. Provide concise, practical advice.
+Focus on study strategies, exam preparation, motivation, and how to use available resources.
+Keep responses under 200 words and use a friendly tone with emojis.
+`
+    
+    // Try Gemini AI with available models
+    const modelsToTry = [
+      { name: 'gemini-2.5-flash', version: 'v1beta' },
+      { name: 'gemini-2.0-flash', version: 'v1beta' },
+      { name: 'gemini-flash-latest', version: 'v1beta' }
+    ]
+    
+    for (const { name: modelName, version } of modelsToTry) {
+      try {
+        const apiUrl = `https://generativelanguage.googleapis.com/${version}/models/${modelName}:generateContent?key=${process.env.GEMINI_API_KEY}`
+        
+        const requestBody = {
+          contents: [{
+            parts: [{
+              text: contextInfo
+            }]
+          }]
+        }
+        
+        const apiResponse = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        })
+        
+        if (apiResponse.ok) {
+          const data = await apiResponse.json()
+          const response = data.candidates?.[0]?.content?.parts?.[0]?.text
+          
+          if (response) {
+            console.log(`✓ Tutor response generated with ${modelName}`)
+            return response
+          }
+        }
+      } catch (err) {
+        console.log(`Tutor AI error with ${modelName}:`, err.message)
+        continue
+      }
+    }
+    
+    // Fallback to basic response if AI fails
+    console.log('AI unavailable, using fallback response')
+    return generateFallbackResponse(question, course, files, quizzes)
+    
+  } catch (error) {
+    console.error('Tutor generation error:', error)
+    return generateFallbackResponse(question, null, [], [])
+  }
+}
+
+// Fallback pattern-based responses when AI is unavailable
+const generateFallbackResponse = (question, course, files, quizzes) => {
   const lowerQuestion = question.toLowerCase()
-  
-  // Get course context
-  const course = await Course.findOne({ _id: courseId, userId })
-  const files = await File.find({ courseId, userId })
-  const quizzes = await Quiz.find({ courseId, userId })
   
   // Pattern matching for different question types
   

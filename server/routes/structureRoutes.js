@@ -87,6 +87,26 @@ router.delete('/years/:yearId', async (req, res) => {
   }
 })
 
+// GET /api/structure/years/:yearId/courses - Get all courses for a specific year
+router.get('/years/:yearId/courses', async (req, res) => {
+  try {
+    const { yearId } = req.params
+
+    // Verify year exists and belongs to user
+    const year = await Year.findOne({ _id: yearId, userId: req.auth.userId })
+    if (!year) {
+      return res.status(404).json({ error: 'Year not found' })
+    }
+
+    const courses = await Course.find({ yearId, userId: req.auth.userId })
+      .sort({ createdAt: -1 })
+
+    res.json(courses)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
 // ========== COURSE ROUTES ==========
 
 // GET /api/structure/courses - Get all courses for user

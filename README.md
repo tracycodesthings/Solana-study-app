@@ -1,4 +1,4 @@
-# 📚 Learnify - Smart Learning Platform
+# 📚 Solana - Smart Learning Platform
 
 A full-stack learning management system with AI-powered features, file management, quiz generation, and smart tutoring.
 
@@ -22,7 +22,7 @@ A full-stack learning management system with AI-powered features, file managemen
 ## 📁 Project Structure
 
 ```
-LEARNIFY/
+SOLANA/
 ├── client/          # React frontend
 │   ├── src/
 │   ├── public/
@@ -52,7 +52,7 @@ LEARNIFY/
 1. **Clone the repository**
    ```bash
    git clone <your-repo-url>
-   cd LEARNIFY
+   cd SOLANA
    ```
 
 2. **Install dependencies**
@@ -78,7 +78,7 @@ LEARNIFY/
    ```env
    PORT=5000
    CLERK_SECRET_KEY=your_clerk_secret_key
-   MONGODB_URI=mongodb://localhost:27017/learnifydb
+   MONGODB_URI=mongodb://localhost:27017/solanadb
    ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
    ```
 

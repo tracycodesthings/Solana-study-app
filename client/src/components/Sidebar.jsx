@@ -1,16 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
-import { useDarkMode } from '../contexts/DarkModeContext'
 
 function Sidebar() {
   const location = useLocation()
-  const { isDarkMode, toggleDarkMode } = useDarkMode()
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
     { name: 'Files', href: '/files', icon: FolderIcon },
     { name: 'Quizzes', href: '/quizzes', icon: QuizIcon },
     { name: 'Smart Tutor', href: '/tutor', icon: SearchIcon },
-    { name: 'Mixed Papers', href: '/mixed-papers', icon: DocumentsIcon },
   ]
 
   function classNames(...classes) {
@@ -23,7 +20,7 @@ function Sidebar() {
         <div className="flex flex-col h-0 flex-1 bg-gray-800 dark:bg-gray-900">
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center justify-between flex-shrink-0 px-4">
-              <h1 className="text-2xl font-bold text-white">📚 Learnify</h1>
+              <h1 className="text-2xl font-bold text-white">📚 Solana</h1>
             </div>
             <nav className="mt-5 flex-1 px-2 space-y-1">
               {navigation.map((item) => {
@@ -51,24 +48,6 @@ function Sidebar() {
                 )
               })}
             </nav>
-            <div className="px-2 pb-2">
-              <button
-                onClick={toggleDarkMode}
-                className="w-full flex items-center px-2 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 dark:hover:bg-gray-800 hover:text-white transition-colors"
-              >
-                {isDarkMode ? (
-                  <>
-                    <SunIcon className="mr-3 h-6 w-6 text-gray-400" />
-                    Light Mode
-                  </>
-                ) : (
-                  <>
-                    <MoonIcon className="mr-3 h-6 w-6 text-gray-400" />
-                    Dark Mode
-                  </>
-                )}
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -113,22 +92,6 @@ function DocumentsIcon({ className }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-    </svg>
-  )
-}
-
-function MoonIcon({ className }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-    </svg>
-  )
-}
-
-function SunIcon({ className }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
     </svg>
   )
 }

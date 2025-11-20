@@ -11,7 +11,8 @@ export const requireAuth = async (req, res, next) => {
 
     // Verify the JWT token (networkless verification)
     const payload = await verifyToken(sessionToken, {
-      secretKey: process.env.CLERK_SECRET_KEY
+      secretKey: process.env.CLERK_SECRET_KEY,
+      clockSkewInMs: 30000 // Allow 30 second clock skew (your system clock seems off)
     })
     
     if (!payload || !payload.sub) {
