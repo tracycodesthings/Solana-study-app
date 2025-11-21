@@ -6,6 +6,12 @@
 [![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-ISC-blue)](LICENSE)
 
+## 🌐 Live Application
+
+**🚀 Try it now**: [https://solana-study-app.vercel.app](https://solana-study-app.vercel.app)
+
+**API Backend**: [https://solana-study-app-1.onrender.com](https://solana-study-app-1.onrender.com/health)
+
 ## ✨ Features
 
 - 🤖 **AI Quiz Generation** - Generate quizzes from uploaded study materials using Google Gemini AI
