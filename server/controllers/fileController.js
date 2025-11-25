@@ -6,6 +6,14 @@ import path from 'path'
 // Upload file
 export const uploadFile = async (req, res) => {
   try {
+    // Ensure uploads directory exists
+    const uploadsDir = process.env.UPLOAD_DIR || './uploads'
+    try {
+      await fs.access(uploadsDir)
+    } catch {
+      await fs.mkdir(uploadsDir, { recursive: true })
+    }
+
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' })
     }
