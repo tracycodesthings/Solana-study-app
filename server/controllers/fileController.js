@@ -46,7 +46,13 @@ export const uploadFile = async (req, res) => {
     res.status(201).json(file)
   } catch (error) {
     console.error('Upload error:', error)
-    res.status(500).json({ error: error.message })
+    console.error('Error stack:', error.stack)
+    console.error('Request file:', req.file)
+    console.error('Request body:', req.body)
+    res.status(500).json({ 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    })
   }
 }
 
