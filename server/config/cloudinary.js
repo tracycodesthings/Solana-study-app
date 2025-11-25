@@ -60,4 +60,4 @@ const upload = multer({
   }
 })
 
-export { cloudinary: cloudinaryInstance, upload, hasCloudinaryConfig }
+export { cloudinaryInstance as cloudinary, upload, hasCloudinaryConfig }
