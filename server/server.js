@@ -99,7 +99,12 @@ app.use(
       if (!origin) return callback(null, true)
       
       if (process.env.NODE_ENV === 'production') {
-        if (allowedOrigins.includes(origin)) {
+        // Check if origin matches allowed origins or Vercel preview URLs
+        const isAllowed = allowedOrigins.includes(origin) || 
+                         origin.includes('vercel.app') ||
+                         origin.includes('solana-study-app')
+        
+        if (isAllowed) {
           callback(null, true)
         } else {
           callback(new Error('Not allowed by CORS'))
