@@ -1,46 +1,40 @@
 import File from '../models/File.js'
 import Course from '../models/Course.js'
-import fs from 'fs/promises'
-import path from 'path'
+import { cloudinary } from '../config/cloudinary.js'
 
 // Upload file
 export const uploadFile = async (req, res) => {
   try {
-    // Ensure uploads directory exists
-    const uploadsDir = process.env.UPLOAD_DIR || './uploads'
-    try {
-      await fs.access(uploadsDir)
-    } catch {
-      await fs.mkdir(uploadsDir, { recursive: true })
-    }
-
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' })
     }
 
     const { courseId } = req.body
     if (!courseId) {
-      // Clean up uploaded file
-      await fs.unlink(req.file.path)
+      // Cloudinary automatically handles cleanup
       return res.status(400).json({ error: 'Course ID is required' })
     }
 
     // Verify course exists and belongs to user
     const course = await Course.findOne({ _id: courseId, userId: req.auth.userId })
     if (!course) {
-      await fs.unlink(req.file.path)
+      // Delete from Cloudinary if course not found
+      if (req.file.filename) {
+        await cloudinary.uploader.destroy(req.file.filename)
+      }
       return res.status(404).json({ error: 'Course not found' })
     }
 
-    // Create file record
+    // Create file record - req.file.path contains Cloudinary URL
     const file = await File.create({
       name: req.file.originalname,
       originalName: req.file.originalname,
-      url: `/uploads/${req.file.filename}`,
+      url: req.file.path, // Cloudinary URL
       size: req.file.size,
       mimeType: req.file.mimetype,
       courseId,
-      userId: req.auth.userId
+      userId: req.auth.userId,
+      cloudinaryId: req.file.filename // Store for deletion
     })
 
     res.status(201).json(file)
@@ -86,13 +80,12 @@ export const deleteFile = async (req, res) => {
       return res.status(404).json({ error: 'File not found' })
     }
 
-    // Delete physical file only if it's not a link
-    if (!file.isLink) {
-      const filePath = path.join(process.cwd(), file.url)
+    // Delete from Cloudinary if it's not a link and has cloudinaryId
+    if (!file.isLink && file.cloudinaryId) {
       try {
-        await fs.unlink(filePath)
+        await cloudinary.uploader.destroy(file.cloudinaryId)
       } catch (err) {
-        console.error('Error deleting physical file:', err)
+        console.error('Error deleting from Cloudinary:', err)
       }
     }
 
