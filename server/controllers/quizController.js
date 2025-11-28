@@ -13,7 +13,7 @@ import Canvas from 'canvas'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import JSZip from 'jszip'
 import axios from 'axios'
-import { hasCloudinaryConfig } from '../config/cloudinary.js'
+import { cloudinary, hasCloudinaryConfig } from '../config/cloudinary.js'
 
 const { createCanvas, loadImage, Image } = Canvas
 
@@ -629,9 +629,45 @@ export const generateQuiz = async (req, res) => {
       // Check if file is from Cloudinary or any external URL (starts with http)
       if (file.url.startsWith('http://') || file.url.startsWith('https://')) {
         console.log('✅ Downloading file from URL:', file.url)
-        const response = await axios.get(file.url, { responseType: 'arraybuffer' })
-        fileBuffer = Buffer.from(response.data)
-        console.log('✅ Downloaded', response.data.byteLength, 'bytes')
+        
+        try {
+          // Try direct download first
+          const response = await axios.get(file.url, { 
+            responseType: 'arraybuffer',
+            timeout: 30000,
+            maxRedirects: 5
+          })
+          fileBuffer = Buffer.from(response.data)
+          console.log('✅ Downloaded', response.data.byteLength, 'bytes')
+        } catch (downloadError) {
+          console.error('❌ Direct download failed:', downloadError.message)
+          
+          // If Cloudinary and we have cloudinaryId, try using Cloudinary SDK
+          if (file.cloudinaryId && hasCloudinaryConfig) {
+            console.log('🔄 Attempting Cloudinary SDK download...')
+            try {
+              // For Cloudinary, construct a public URL or use the resource API
+              const cloudinaryUrl = cloudinary.url(file.cloudinaryId, {
+                resource_type: 'raw',
+                type: 'upload',
+                secure: true
+              })
+              console.log('📥 Trying Cloudinary URL:', cloudinaryUrl)
+              
+              const cloudResponse = await axios.get(cloudinaryUrl, { 
+                responseType: 'arraybuffer',
+                timeout: 30000
+              })
+              fileBuffer = Buffer.from(cloudResponse.data)
+              console.log('✅ Downloaded from Cloudinary SDK:', cloudResponse.data.byteLength, 'bytes')
+            } catch (cloudError) {
+              console.error('❌ Cloudinary SDK download also failed:', cloudError.message)
+              throw new Error(`Cannot download file from Cloudinary: ${cloudError.response?.status || cloudError.message}. The file might be private or the URL has expired.`)
+            }
+          } else {
+            throw new Error(`Cannot download file: ${downloadError.response?.status || downloadError.message}. Please check if the file URL is valid and accessible.`)
+          }
+        }
       } else {
         // Local file
         console.log('📁 Reading local file:', file.url)
