@@ -593,14 +593,18 @@ export const generateQuiz = async (req, res) => {
     try {
       let fileBuffer
       
+      console.log('🔍 File URL:', file.url)
+      console.log('🔍 Starts with http:', file.url.startsWith('http://') || file.url.startsWith('https://'))
+      
       // Check if file is from Cloudinary or any external URL (starts with http)
       if (file.url.startsWith('http://') || file.url.startsWith('https://')) {
-        console.log('Downloading file from URL:', file.url)
+        console.log('✅ Downloading file from URL:', file.url)
         const response = await axios.get(file.url, { responseType: 'arraybuffer' })
         fileBuffer = Buffer.from(response.data)
+        console.log('✅ Downloaded', response.data.byteLength, 'bytes')
       } else {
         // Local file
-        console.log('Reading local file:', file.url)
+        console.log('📁 Reading local file:', file.url)
         const filePath = path.join(process.cwd(), file.url)
         fileBuffer = await fs.readFile(filePath)
       }
