@@ -63,13 +63,18 @@ export const uploadFile = async (req, res) => {
         filename: req.file.filename,
         path: req.file.path,
         publicId: req.file.public_id,
-        allKeys: Object.keys(req.file)
+        resource_type: req.file.resource_type,
+        format: req.file.format,
+        url: req.file.url,
+        secure_url: req.file.secure_url,
+        allKeys: Object.keys(req.file),
+        fullObject: req.file
       })
     }
 
-    // For Cloudinary, the public_id might be in different properties
+    // For Cloudinary, always use the true public_id
     const cloudinaryId = hasCloudinaryConfig 
-      ? (req.file.public_id || req.file.filename)
+      ? req.file.public_id
       : undefined
 
     // Create file record

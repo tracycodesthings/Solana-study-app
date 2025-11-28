@@ -73,9 +73,10 @@ function TutorPage() {
       const response = await axios.get('/api/structure/years', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      setYears(response.data)
+      setYears(Array.isArray(response.data) ? response.data : [])
     } catch (err) {
       setError('Failed to load years')
+      setYears([])
     }
   }
 
@@ -85,9 +86,10 @@ function TutorPage() {
       const response = await axios.get(`/api/structure/years/${yearId}/courses`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      setCourses(response.data)
+      setCourses(Array.isArray(response.data) ? response.data : [])
     } catch (err) {
       setError('Failed to load courses')
+      setCourses([])
     }
   }
 
@@ -97,9 +99,10 @@ function TutorPage() {
       const response = await axios.get(`/api/tutor/conversations/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      setConversations(response.data)
+      setConversations(Array.isArray(response.data) ? response.data : [])
     } catch (err) {
       console.error('Failed to load conversations:', err)
+      setConversations([])
     }
   }
 

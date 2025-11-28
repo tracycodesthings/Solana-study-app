@@ -572,6 +572,19 @@ export const generateQuiz = async (req, res) => {
       body: req.body,
       userId: req.auth?.userId
     })
+    // Log file details from DB
+    const fileFromDb = await File.findOne({ _id: req.body.fileId, userId: req.auth.userId })
+    if (fileFromDb) {
+      console.log('🔎 File from DB:', {
+        _id: fileFromDb._id,
+        name: fileFromDb.name,
+        url: fileFromDb.url,
+        cloudinaryId: fileFromDb.cloudinaryId,
+        mimeType: fileFromDb.mimeType,
+        size: fileFromDb.size,
+        fullObject: fileFromDb
+      })
+    }
     
     const { fileId, courseId, numQuestions } = req.body
     
@@ -663,17 +676,14 @@ export const generateQuiz = async (req, res) => {
             
             for (const resourceType of resourceTypes) {
               try {
-                // Extract public_id from cloudinaryId (it might have folder prefix)
-                const publicId = file.cloudinaryId.replace(/^solana-uploads\//, '')
-                
-                // Try with folder prefix first
-                let cloudinaryUrl = cloudinary.url(`solana-uploads/${publicId}`, {
+                // Use the public_id exactly as stored in the database
+                const publicId = file.cloudinaryId
+                let cloudinaryUrl = cloudinary.url(publicId, {
                   resource_type: resourceType,
                   type: 'upload',
                   secure: true
                 })
-                console.log(`📥 Trying Cloudinary URL with folder and resource_type '${resourceType}':`, cloudinaryUrl)
-                
+                console.log(`📥 Trying Cloudinary URL with resource_type '${resourceType}':`, cloudinaryUrl)
                 let cloudResponse
                 try {
                   cloudResponse = await axios.get(cloudinaryUrl, { 
@@ -681,26 +691,14 @@ export const generateQuiz = async (req, res) => {
                     timeout: 30000,
                     validateStatus: (status) => status === 200
                   })
+                  fileBuffer = Buffer.from(cloudResponse.data)
+                  console.log(`✅ Downloaded from Cloudinary (${resourceType}):`, cloudResponse.data.byteLength, 'bytes')
+                  downloaded = true
+                  break
                 } catch (e) {
-                  // Try without folder prefix
-                  console.log(`📥 Retrying without folder prefix...`)
-                  cloudinaryUrl = cloudinary.url(publicId, {
-                    resource_type: resourceType,
-                    type: 'upload',
-                    secure: true
-                  })
-                  console.log(`📥 Trying URL:`, cloudinaryUrl)
-                  cloudResponse = await axios.get(cloudinaryUrl, { 
-                    responseType: 'arraybuffer',
-                    timeout: 30000,
-                    validateStatus: (status) => status === 200
-                  })
+                  console.log(`❌ Resource type '${resourceType}' failed:`, e.response?.status || e.message)
+                  // Continue to next resource type
                 }
-                
-                fileBuffer = Buffer.from(cloudResponse.data)
-                console.log(`✅ Downloaded from Cloudinary (${resourceType}):`, cloudResponse.data.byteLength, 'bytes')
-                downloaded = true
-                break
               } catch (cloudError) {
                 console.log(`❌ Resource type '${resourceType}' failed: ${cloudError.response?.status || cloudError.message}`)
                 // Continue to next resource type
