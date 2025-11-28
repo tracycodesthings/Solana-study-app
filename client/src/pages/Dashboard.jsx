@@ -7,6 +7,8 @@ import { motion } from 'framer-motion'
 import Sidebar from '../components/Sidebar'
 import EmptyState from '../components/EmptyState'
 
+const API_URL = import.meta.env.VITE_API_URL || ''
+
 function Dashboard() {
   const { user } = useUser()
   const [stats, setStats] = useState(null)
@@ -33,11 +35,11 @@ function Dashboard() {
       const headers = { Authorization: `Bearer ${token}` }
 
       const [statsRes, performanceRes, courseRes, activityRes, weakRes] = await Promise.all([
-        axios.get('/api/progress/dashboard', { headers }),
-        axios.get('/api/progress/quiz-performance?days=14', { headers }),
-        axios.get('/api/progress/course-performance', { headers }),
-        axios.get('/api/progress/recent-activity?limit=5', { headers }),
-        axios.get('/api/progress/weak-areas', { headers })
+        axios.get(`${API_URL}/api/progress/dashboard`, { headers }),
+        axios.get(`${API_URL}/api/progress/quiz-performance?days=14`, { headers }),
+        axios.get(`${API_URL}/api/progress/course-performance`, { headers }),
+        axios.get(`${API_URL}/api/progress/recent-activity?limit=5`, { headers }),
+        axios.get(`${API_URL}/api/progress/weak-areas`, { headers })
       ])
 
       setStats(statsRes.data)
@@ -61,7 +63,7 @@ function Dashboard() {
 
     try {
       const token = await getAuthToken()
-      const response = await axios.get(`/api/search?query=${encodeURIComponent(searchQuery)}`, {
+      const response = await axios.get(`${API_URL}/api/search?query=${encodeURIComponent(searchQuery)}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setSearchResults(response.data)

@@ -4,6 +4,8 @@ import { UserButton } from '@clerk/clerk-react'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 
+const API_URL = import.meta.env.VITE_API_URL || ''
+
 function QuizPage() {
   const navigate = useNavigate()
   const [years, setYears] = useState([])
@@ -55,7 +57,7 @@ function QuizPage() {
   const fetchYears = async () => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get('/api/structure/years', {
+      const response = await axios.get(`${API_URL}/api/structure/years`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setYears(response.data)
@@ -67,7 +69,7 @@ function QuizPage() {
   const fetchCourses = async (yearId) => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get(`/api/structure/years/${yearId}/courses`, {
+      const response = await axios.get(`${API_URL}/api/structure/years/${yearId}/courses`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setCourses(response.data)
@@ -79,7 +81,7 @@ function QuizPage() {
   const fetchQuizzes = async (courseId) => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get(`/api/quizzes/course/${courseId}`, {
+      const response = await axios.get(`${API_URL}/api/quizzes/course/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setQuizzes(response.data)
@@ -91,7 +93,7 @@ function QuizPage() {
   const fetchFiles = async (courseId) => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get(`/api/files/${courseId}`, {
+      const response = await axios.get(`${API_URL}/api/files/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setFiles(response.data)
@@ -111,7 +113,7 @@ function QuizPage() {
 
     try {
       const token = await getAuthToken()
-      await axios.post('/api/quizzes/generate', {
+      await axios.post(`${API_URL}/api/quizzes/generate`, {
         fileId: selectedFile,
         courseId: selectedCourse,
         numQuestions: numQuestions
@@ -147,7 +149,7 @@ function QuizPage() {
       formData.append('title', uploadTitle)
       formData.append('type', uploadType)
 
-      await axios.post('/api/quizzes/upload', formData, {
+      await axios.post(`${API_URL}/api/quizzes/upload`, formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
@@ -170,7 +172,7 @@ function QuizPage() {
 
     try {
       const token = await getAuthToken()
-      await axios.delete(`/api/quizzes/${quizId}`, {
+      await axios.delete(`${API_URL}/api/quizzes/${quizId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       fetchQuizzes(selectedCourse)
