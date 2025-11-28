@@ -5,8 +5,19 @@ const API_URL = import.meta.env.VITE_API_URL || ''
 
 // Get auth token from Clerk
 const getAuthToken = async () => {
-  const token = await window.Clerk?.session?.getToken()
-  return token
+  try {
+    if (!window.Clerk?.session) {
+      throw new Error('Not authenticated. Please sign in again.')
+    }
+    const token = await window.Clerk.session.getToken()
+    if (!token) {
+      throw new Error('Failed to get authentication token')
+    }
+    return token
+  } catch (err) {
+    console.error('Auth token error:', err)
+    throw err
+  }
 }
 
 // ========== YEAR APIs ==========

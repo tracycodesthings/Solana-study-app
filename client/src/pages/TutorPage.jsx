@@ -20,7 +20,19 @@ function TutorPage() {
   const messagesEndRef = useRef(null)
 
   const getAuthToken = async () => {
-    return await window.Clerk.session.getToken()
+    try {
+      if (!window.Clerk?.session) {
+        throw new Error('Not authenticated. Please sign in again.')
+      }
+      const token = await window.Clerk.session.getToken()
+      if (!token) {
+        throw new Error('Failed to get authentication token')
+      }
+      return token
+    } catch (err) {
+      console.error('Auth token error:', err)
+      throw err
+    }
   }
 
   const scrollToBottom = () => {

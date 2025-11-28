@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserButton } from '@clerk/clerk-react'
+import { UserButton, useUser } from '@clerk/clerk-react'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 
@@ -8,6 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || ''
 
 function QuizPage() {
   const navigate = useNavigate()
+  const { isSignedIn, isLoaded } = useUser()
   const [years, setYears] = useState([])
   const [courses, setCourses] = useState([])
   const [quizzes, setQuizzes] = useState({ generated: [], uploaded: [] })
@@ -28,12 +29,33 @@ function QuizPage() {
   const [error, setError] = useState('')
 
   const getAuthToken = async () => {
-    return await window.Clerk.session.getToken()
+    try {
+      if (!window.Clerk?.session) {
+        throw new Error('Not authenticated. Please sign in again.')
+      }
+      const token = await window.Clerk.session.getToken()
+      if (!token) {
+        throw new Error('Failed to get authentication token')
+      }
+      return token
+    } catch (err) {
+      console.error('Auth token error:', err)
+      throw err
+    }
   }
 
+  // Redirect to sign-in if not authenticated
   useEffect(() => {
-    fetchYears()
-  }, [])
+    if (isLoaded && !isSignedIn) {
+      navigate('/sign-in')
+    }
+  }, [isLoaded, isSignedIn, navigate])
+
+  useEffect(() => {
+    if (isSignedIn) {
+      fetchYears()
+    }
+  }, [isSignedIn])
 
   useEffect(() => {
     if (selectedYear) {
@@ -103,8 +125,13 @@ function QuizPage() {
   }
 
   const handleGenerateQuiz = async () => {
-    if (!selectedFile) {
+    if (!selectedFile || selectedFile === '') {
       setError('Please select a file')
+      return
+    }
+
+    if (!selectedCourse || selectedCourse === '') {
+      setError('Please select a course first')
       return
     }
 
@@ -113,6 +140,12 @@ function QuizPage() {
 
     try {
       const token = await getAuthToken()
+      console.log('Generating quiz with:', {
+        fileId: selectedFile,
+        courseId: selectedCourse,
+        numQuestions: numQuestions
+      })
+      
       await axios.post(`${API_URL}/api/quizzes/generate`, {
         fileId: selectedFile,
         courseId: selectedCourse,
@@ -126,7 +159,15 @@ function QuizPage() {
       setNumQuestions(10)
       fetchQuizzes(selectedCourse)
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to generate quiz')
+      console.error('Quiz generation error:', err.response?.data || err.message)
+      // Check if it's an authentication error
+      if (err.message?.includes('Not authenticated') || err.response?.status === 401) {
+        setError('Authentication error. Please refresh the page and sign in again.')
+      } else if (err.response?.status === 400) {
+        setError(err.response?.data?.error || 'Invalid request. Please check your selections.')
+      } else {
+        setError(err.response?.data?.error || err.message || 'Failed to generate quiz')
+      }
     } finally {
       setLoading(false)
     }

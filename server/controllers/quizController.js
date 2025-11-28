@@ -568,10 +568,36 @@ const extractQuestionsFromText = (text) => {
 // Generate quiz from notes
 export const generateQuiz = async (req, res) => {
   try {
+    console.log('📥 Quiz generation request received:', {
+      body: req.body,
+      userId: req.auth?.userId
+    })
+    
     const { fileId, courseId, numQuestions } = req.body
     
-    if (!fileId || !courseId) {
-      return res.status(400).json({ error: 'File ID and Course ID are required' })
+    if (!fileId || fileId === '' || !courseId || courseId === '') {
+      console.error('❌ Missing or empty required fields:', { fileId, courseId })
+      return res.status(400).json({ 
+        error: 'File ID and Course ID are required',
+        received: { fileId, courseId }
+      })
+    }
+
+    // Validate MongoDB ObjectId format
+    const ObjectIdPattern = /^[0-9a-fA-F]{24}$/
+    if (!ObjectIdPattern.test(fileId)) {
+      console.error('❌ Invalid fileId format:', fileId)
+      return res.status(400).json({ 
+        error: 'Invalid file ID format',
+        received: { fileId }
+      })
+    }
+    if (!ObjectIdPattern.test(courseId)) {
+      console.error('❌ Invalid courseId format:', courseId)
+      return res.status(400).json({ 
+        error: 'Invalid course ID format',
+        received: { courseId }
+      })
     }
     
     const maxQuestions = parseInt(numQuestions) || 0 // 0 means extract all
@@ -579,14 +605,18 @@ export const generateQuiz = async (req, res) => {
     // Verify course belongs to user
     const course = await Course.findOne({ _id: courseId, userId: req.auth.userId })
     if (!course) {
+      console.error('❌ Course not found:', { courseId, userId: req.auth.userId })
       return res.status(404).json({ error: 'Course not found' })
     }
+    console.log('✅ Course found:', course.name)
     
     // Get file
     const file = await File.findOne({ _id: fileId, userId: req.auth.userId })
     if (!file) {
+      console.error('❌ File not found:', { fileId, userId: req.auth.userId })
       return res.status(404).json({ error: 'File not found' })
     }
+    console.log('✅ File found:', file.name)
     
     // Read file content
     let content = ''
@@ -680,10 +710,18 @@ export const generateQuiz = async (req, res) => {
       generatedFrom: file.name
     })
     
+    console.log('✅ Quiz created successfully:', quiz._id)
     res.status(201).json(quiz)
   } catch (error) {
-    console.error('Quiz generation error:', error)
-    res.status(500).json({ error: error.message })
+    console.error('❌ Quiz generation error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    })
+    res.status(500).json({ 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    })
   }
 }
 
