@@ -31,6 +31,7 @@ function QuizPlayer() {
       const response = await axios.get(`/api/quizzes/${quizId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
+      console.log('Quiz data received from backend:', response.data)
       setQuiz(response.data)
       setLoading(false)
     } catch (err) {
@@ -197,25 +198,30 @@ function QuizPlayer() {
                       </div>
                     </button>
                   ))
-                ) : (
-                  <textarea
-                    value={answers[currentQuestion] || ''}
-                    onChange={(e) => handleAnswerSelect(e.target.value)}
-                    placeholder="Type your answer here..."
-                    className="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-blue-600 focus:outline-none"
-                    rows="6"
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between items-center">
-              <button
-                onClick={handlePrevious}
-                disabled={currentQuestion === 0}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                return (
+                  <div className="flex">
+                    <Sidebar />
+                    <div className="flex-1 p-6">
+                      <UserButton afterSignOutUrl="/sign-in" />
+                      {/* Debug output: show raw quiz object */}
+                      <div style={{ background: '#f9f9f9', color: '#333', padding: '1em', marginBottom: '1em', border: '1px solid #ccc', fontSize: '0.9em' }}>
+                        <strong>Debug: Raw quiz object</strong>
+                        <pre>{JSON.stringify(quiz, null, 2)}</pre>
+                      </div>
+                      {loading ? (
+                        <div>Loading quiz...</div>
+                      ) : error ? (
+                        <div className="text-red-500">{error}</div>
+                      ) : !quiz || !quiz.questions || quiz.questions.length === 0 ? (
+                        <div>No quiz data available.</div>
+                      ) : showResults ? (
+                        <QuizResults results={results} quiz={quiz} />
+                      ) : (
+                        // ...existing code...
+                      )}
+                    </div>
+                  </div>
+                )
                 Previous
               </button>
 
