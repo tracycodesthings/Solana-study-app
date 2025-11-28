@@ -125,12 +125,25 @@ app.get('/api/health', async (req, res) => {
     const mongoose = (await import('mongoose')).default
     const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
     
+    // Check Cloudinary configuration
+    const hasCloudinary = !!(
+      process.env.CLOUDINARY_CLOUD_NAME && 
+      process.env.CLOUDINARY_API_KEY && 
+      process.env.CLOUDINARY_API_SECRET
+    )
+    
+    const cloudinaryStatus = hasCloudinary 
+      ? `configured (${process.env.CLOUDINARY_CLOUD_NAME})` 
+      : 'not configured (using local storage)'
+    
     res.json({ 
       status: 'OK', 
       message: 'Solana API is running',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
       database: dbStatus,
+      cloudinary: cloudinaryStatus,
+      storage: hasCloudinary ? 'cloudinary' : 'local',
       uptime: process.uptime()
     })
   } catch (error) {
