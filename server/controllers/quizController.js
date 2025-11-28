@@ -623,12 +623,17 @@ export const generateQuiz = async (req, res) => {
     try {
       let fileBuffer
       
-      console.log('🔍 File URL:', file.url)
-      console.log('🔍 Starts with http:', file.url.startsWith('http://') || file.url.startsWith('https://'))
+      console.log('🔍 File details:', {
+        name: file.name,
+        url: file.url,
+        cloudinaryId: file.cloudinaryId,
+        mimeType: file.mimeType,
+        size: file.size
+      })
       
       // Check if file is from Cloudinary or any external URL (starts with http)
       if (file.url.startsWith('http://') || file.url.startsWith('https://')) {
-        console.log('✅ Downloading file from URL:', file.url)
+        console.log('📥 Attempting to download from URL:', file.url)
         
         try {
           // Try direct download first
@@ -644,28 +649,63 @@ export const generateQuiz = async (req, res) => {
           
           // If Cloudinary and we have cloudinaryId, try using Cloudinary SDK
           if (file.cloudinaryId && hasCloudinaryConfig) {
-            console.log('🔄 Attempting Cloudinary SDK download...')
-            try {
-              // For Cloudinary, construct a public URL or use the resource API
-              const cloudinaryUrl = cloudinary.url(file.cloudinaryId, {
-                resource_type: 'raw',
-                type: 'upload',
-                secure: true
-              })
-              console.log('📥 Trying Cloudinary URL:', cloudinaryUrl)
-              
-              const cloudResponse = await axios.get(cloudinaryUrl, { 
-                responseType: 'arraybuffer',
-                timeout: 30000
-              })
-              fileBuffer = Buffer.from(cloudResponse.data)
-              console.log('✅ Downloaded from Cloudinary SDK:', cloudResponse.data.byteLength, 'bytes')
-            } catch (cloudError) {
-              console.error('❌ Cloudinary SDK download also failed:', cloudError.message)
-              throw new Error(`Cannot download file from Cloudinary: ${cloudError.response?.status || cloudError.message}. The file might be private or the URL has expired.`)
+            console.log('🔄 Attempting Cloudinary SDK download with multiple resource types...')
+            
+            // Try different resource types as Cloudinary categorizes files differently
+            const resourceTypes = ['raw', 'image', 'video', 'auto']
+            let downloaded = false
+            
+            for (const resourceType of resourceTypes) {
+              try {
+                // Extract public_id from cloudinaryId (it might have folder prefix)
+                const publicId = file.cloudinaryId.replace(/^solana-uploads\//, '')
+                
+                // Try with folder prefix first
+                let cloudinaryUrl = cloudinary.url(`solana-uploads/${publicId}`, {
+                  resource_type: resourceType,
+                  type: 'upload',
+                  secure: true
+                })
+                console.log(`📥 Trying Cloudinary URL with folder and resource_type '${resourceType}':`, cloudinaryUrl)
+                
+                let cloudResponse
+                try {
+                  cloudResponse = await axios.get(cloudinaryUrl, { 
+                    responseType: 'arraybuffer',
+                    timeout: 30000,
+                    validateStatus: (status) => status === 200
+                  })
+                } catch (e) {
+                  // Try without folder prefix
+                  console.log(`📥 Retrying without folder prefix...`)
+                  cloudinaryUrl = cloudinary.url(publicId, {
+                    resource_type: resourceType,
+                    type: 'upload',
+                    secure: true
+                  })
+                  console.log(`📥 Trying URL:`, cloudinaryUrl)
+                  cloudResponse = await axios.get(cloudinaryUrl, { 
+                    responseType: 'arraybuffer',
+                    timeout: 30000,
+                    validateStatus: (status) => status === 200
+                  })
+                }
+                
+                fileBuffer = Buffer.from(cloudResponse.data)
+                console.log(`✅ Downloaded from Cloudinary (${resourceType}):`, cloudResponse.data.byteLength, 'bytes')
+                downloaded = true
+                break
+              } catch (cloudError) {
+                console.log(`❌ Resource type '${resourceType}' failed: ${cloudError.response?.status || cloudError.message}`)
+                // Continue to next resource type
+              }
+            }
+            
+            if (!downloaded) {
+              throw new Error(`File not found in Cloudinary (tried all resource types). The file may have been deleted or the cloudinaryId '${file.cloudinaryId}' is incorrect. Please re-upload the file.`)
             }
           } else {
-            throw new Error(`Cannot download file: ${downloadError.response?.status || downloadError.message}. Please check if the file URL is valid and accessible.`)
+            throw new Error(`Cannot download file: ${downloadError.response?.status || downloadError.message}. Please check if the file URL is valid and accessible, or try re-uploading the file.`)
           }
         }
       } else {
