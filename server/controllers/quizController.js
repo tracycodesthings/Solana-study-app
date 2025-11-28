@@ -12,6 +12,8 @@ import { createWorker } from 'tesseract.js'
 import Canvas from 'canvas'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import JSZip from 'jszip'
+import axios from 'axios'
+import { hasCloudinaryConfig } from '../config/cloudinary.js'
 
 const { createCanvas, loadImage, Image } = Canvas
 
@@ -589,11 +591,21 @@ export const generateQuiz = async (req, res) => {
     // Read file content
     let content = ''
     try {
-      const filePath = path.join(process.cwd(), file.url)
-      const fileBuffer = await fs.readFile(filePath)
+      let fileBuffer
+      
+      // Check if file is from Cloudinary (URL starts with http)
+      if (hasCloudinaryConfig && file.url.startsWith('http')) {
+        console.log('Downloading file from Cloudinary:', file.url)
+        const response = await axios.get(file.url, { responseType: 'arraybuffer' })
+        fileBuffer = Buffer.from(response.data)
+      } else {
+        // Local file
+        const filePath = path.join(process.cwd(), file.url)
+        fileBuffer = await fs.readFile(filePath)
+      }
       
       // Determine mimetype from file extension if not stored
-      let mimetype = file.mimetype
+      let mimetype = file.mimeType || file.mimetype
       if (!mimetype) {
         const ext = path.extname(file.name || file.url).toLowerCase()
         const mimetypeMap = {
