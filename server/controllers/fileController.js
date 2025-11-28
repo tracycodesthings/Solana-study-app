@@ -89,14 +89,20 @@ export const uploadFile = async (req, res) => {
       cloudinaryId: cloudinaryId
     })
 
+    // Log and return both public_id and URL for verification
     console.log('✅ File record created:', {
       id: file._id,
       name: file.name,
       cloudinaryId: file.cloudinaryId,
-      url: file.url
+      url: file.url,
+      cloudinary_url: req.file.url || req.file.secure_url
     })
 
-    res.status(201).json(file)
+    res.status(201).json({
+      ...file.toObject(),
+      cloudinary_url: req.file.url || req.file.secure_url,
+      cloudinary_public_id: req.file.public_id
+    })
   } catch (error) {
     console.error('Upload error:', error)
     console.error('Error stack:', error.stack)

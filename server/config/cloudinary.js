@@ -25,14 +25,16 @@ if (hasCloudinaryConfig) {
   // Configure Cloudinary storage for Multer
   storage = new CloudinaryStorage({
     cloudinary: cloudinary,
-    params: {
-      folder: 'solana-uploads',
-      allowed_formats: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'xlsx', 'xls'],
-      resource_type: 'auto',
-      public_id: (req, file) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        return `${file.fieldname}-${uniqueSuffix}`
-      }
+    params: (req, file) => {
+      const imageMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+      const isImage = imageMimeTypes.includes(file.mimetype);
+      return {
+        folder: 'solana-uploads',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'xlsx', 'xls'],
+        resource_type: isImage ? 'image' : 'raw',
+        access_mode: 'public',
+        public_id: `${file.fieldname}-${Date.now()}-${Math.round(Math.random() * 1E9)}`
+      };
     }
   })
 
