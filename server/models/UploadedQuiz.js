@@ -30,6 +30,10 @@ const uploadedQuizSchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  cloudinaryId: {
+    type: String,
+    required: false
+  },
   uploadedAt: {
     type: Date,
     default: Date.now

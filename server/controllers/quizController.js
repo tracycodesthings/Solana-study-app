@@ -795,25 +795,37 @@ export const uploadManualQuiz = async (req, res) => {
     const { courseId, title, type } = req.body
     
     if (!courseId || !title) {
-      await fs.unlink(req.file.path)
+      // Cleanup - only for local files
+      if (!hasCloudinaryConfig && req.file.path) {
+        await fs.unlink(req.file.path).catch(err => console.error('Cleanup error:', err))
+      }
       return res.status(400).json({ error: 'Course ID and title are required' })
     }
     
     // Verify course belongs to user
     const course = await Course.findOne({ _id: courseId, userId: req.auth.userId })
     if (!course) {
-      await fs.unlink(req.file.path)
+      // Cleanup - only for local files
+      if (!hasCloudinaryConfig && req.file.path) {
+        await fs.unlink(req.file.path).catch(err => console.error('Cleanup error:', err))
+      }
       return res.status(404).json({ error: 'Course not found' })
     }
+    
+    // Determine file URL based on storage type
+    const fileUrl = hasCloudinaryConfig 
+      ? req.file.path // Cloudinary URL
+      : `/uploads/${req.file.filename}` // Local path
     
     // Create uploaded quiz record
     const uploadedQuiz = await UploadedQuiz.create({
       title: title.trim(),
       type: type || 'Past Paper',
-      fileUrl: `/uploads/${req.file.filename}`,
+      fileUrl: fileUrl,
       fileName: req.file.originalname,
       courseId,
-      userId: req.auth.userId
+      userId: req.auth.userId,
+      cloudinaryId: hasCloudinaryConfig ? req.file.filename : undefined
     })
     
     res.status(201).json(uploadedQuiz)
