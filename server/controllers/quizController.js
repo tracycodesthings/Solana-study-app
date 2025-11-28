@@ -640,12 +640,18 @@ export const generateQuiz = async (req, res) => {
           const response = await axios.get(file.url, { 
             responseType: 'arraybuffer',
             timeout: 30000,
-            maxRedirects: 5
+            maxRedirects: 5,
+            validateStatus: (status) => status >= 200 && status < 300
           })
           fileBuffer = Buffer.from(response.data)
           console.log('✅ Downloaded', response.data.byteLength, 'bytes')
         } catch (downloadError) {
-          console.error('❌ Direct download failed:', downloadError.message)
+          console.error('❌ Direct download failed:', {
+            status: downloadError.response?.status,
+            statusText: downloadError.response?.statusText,
+            message: downloadError.message,
+            url: file.url
+          })
           
           // If Cloudinary and we have cloudinaryId, try using Cloudinary SDK
           if (file.cloudinaryId && hasCloudinaryConfig) {
@@ -702,10 +708,39 @@ export const generateQuiz = async (req, res) => {
             }
             
             if (!downloaded) {
-              throw new Error(`File not found in Cloudinary (tried all resource types). The file may have been deleted or the cloudinaryId '${file.cloudinaryId}' is incorrect. Please re-upload the file.`)
+              // Last resort: Try to use Cloudinary admin API to check if resource exists
+              console.log('🔍 Checking if resource exists in Cloudinary...')
+              try {
+                const resourceInfo = await cloudinary.api.resource(file.cloudinaryId, {
+                  resource_type: 'raw'
+                }).catch(() => cloudinary.api.resource(file.cloudinaryId, {
+                  resource_type: 'image'
+                }))
+                
+                console.log('ℹ️ Resource found in Cloudinary:', {
+                  public_id: resourceInfo.public_id,
+                  secure_url: resourceInfo.secure_url,
+                  resource_type: resourceInfo.resource_type
+                })
+                
+                // Try downloading from the secure_url returned by the API
+                const finalResponse = await axios.get(resourceInfo.secure_url, {
+                  responseType: 'arraybuffer',
+                  timeout: 30000
+                })
+                fileBuffer = Buffer.from(finalResponse.data)
+                console.log('✅ Downloaded using Cloudinary API resource info')
+                downloaded = true
+              } catch (apiError) {
+                console.error('❌ Cloudinary API check failed:', apiError.message)
+              }
+            }
+            
+            if (!downloaded) {
+              throw new Error(`File not found in Cloudinary (tried all methods). The file may have been deleted, the cloudinaryId '${file.cloudinaryId}' is incorrect, or you may be using a different Cloudinary account. Please re-upload the file.`)
             }
           } else {
-            throw new Error(`Cannot download file: ${downloadError.response?.status || downloadError.message}. Please check if the file URL is valid and accessible, or try re-uploading the file.`)
+            throw new Error(`Cannot download file: ${downloadError.response?.status || downloadError.message}. The file URL might be invalid, private, or expired. Please try re-uploading the file.`)
           }
         }
       } else {

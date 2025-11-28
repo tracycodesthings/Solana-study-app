@@ -57,6 +57,21 @@ export const uploadFile = async (req, res) => {
       ? req.file.path // Cloudinary URL
       : `/uploads/${req.file.filename}` // Local path
 
+    // Log the multer file object to see what properties are available
+    if (hasCloudinaryConfig) {
+      console.log('📤 Cloudinary upload details:', {
+        filename: req.file.filename,
+        path: req.file.path,
+        publicId: req.file.public_id,
+        allKeys: Object.keys(req.file)
+      })
+    }
+
+    // For Cloudinary, the public_id might be in different properties
+    const cloudinaryId = hasCloudinaryConfig 
+      ? (req.file.public_id || req.file.filename)
+      : undefined
+
     // Create file record
     const file = await File.create({
       name: req.file.originalname,
@@ -66,7 +81,14 @@ export const uploadFile = async (req, res) => {
       mimeType: req.file.mimetype,
       courseId,
       userId: req.auth.userId,
-      cloudinaryId: hasCloudinaryConfig ? req.file.filename : undefined
+      cloudinaryId: cloudinaryId
+    })
+
+    console.log('✅ File record created:', {
+      id: file._id,
+      name: file.name,
+      cloudinaryId: file.cloudinaryId,
+      url: file.url
     })
 
     res.status(201).json(file)
