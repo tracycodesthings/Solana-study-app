@@ -109,6 +109,22 @@ function QuizPlayer() {
     )
   }
 
+  if (!quiz || !Array.isArray(quiz.questions) || quiz.questions.length === 0) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">No quiz data available.</p>
+          <button
+            onClick={() => navigate('/quizzes')}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Back to Quizzes
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (showResults) {
     return <QuizResults results={results} quiz={quiz} onBack={() => navigate('/quizzes')} />
   }
