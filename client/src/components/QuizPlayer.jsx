@@ -38,7 +38,13 @@ function QuizPlayer() {
       setLoading(false)
     } catch (err) {
       console.error('Failed to load quiz:', err)
-      setError('Failed to load quiz')
+      // If authentication failed, redirect to sign in
+      if (err.response?.status === 401) {
+        setError('Your session has expired. Please sign in again.')
+        setTimeout(() => navigate('/sign-in'), 2000)
+      } else {
+        setError('Failed to load quiz')
+      }
       setLoading(false)
     }
   }
