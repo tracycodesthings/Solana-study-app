@@ -5,6 +5,8 @@ import axios from 'axios'
 import Sidebar from './Sidebar'
 import QuizResults from './QuizResults'
 
+const API_URL = import.meta.env.VITE_API_URL || ''
+
 function QuizPlayer() {
   const { quizId } = useParams()
   const navigate = useNavigate()
@@ -28,13 +30,14 @@ function QuizPlayer() {
   const fetchQuiz = async () => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get(`/api/quizzes/${quizId}`, {
+      const response = await axios.get(`${API_URL}/api/quizzes/${quizId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       console.log('Quiz data received from backend:', response.data)
       setQuiz(response.data)
       setLoading(false)
     } catch (err) {
+      console.error('Failed to load quiz:', err)
       setError('Failed to load quiz')
       setLoading(false)
     }
@@ -71,7 +74,7 @@ function QuizPlayer() {
       const token = await getAuthToken()
       const answersArray = quiz.questions.map((_, index) => answers[index] || '')
       
-      const response = await axios.post(`/api/quizzes/${quizId}/submit`, {
+      const response = await axios.post(`${API_URL}/api/quizzes/${quizId}/submit`, {
         answers: answersArray
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -80,6 +83,7 @@ function QuizPlayer() {
       setResults(response.data)
       setShowResults(true)
     } catch (err) {
+      console.error('Failed to submit quiz:', err)
       setError('Failed to submit quiz')
     } finally {
       setLoading(false)
