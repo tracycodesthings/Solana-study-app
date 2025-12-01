@@ -3,6 +3,8 @@ import { UserButton } from '@clerk/clerk-react'
 import axios from 'axios'
 import Sidebar from '../components/Sidebar'
 
+const API_URL = import.meta.env.VITE_API_URL || ''
+
 function TutorPage() {
   const [years, setYears] = useState([])
   const [courses, setCourses] = useState([])
@@ -70,11 +72,12 @@ function TutorPage() {
   const fetchYears = async () => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get('/api/structure/years', {
+      const response = await axios.get(`${API_URL}/api/structure/years`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setYears(Array.isArray(response.data) ? response.data : [])
     } catch (err) {
+      console.error('Failed to load years:', err)
       setError('Failed to load years')
       setYears([])
     }
@@ -83,11 +86,12 @@ function TutorPage() {
   const fetchCourses = async (yearId) => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get(`/api/structure/years/${yearId}/courses`, {
+      const response = await axios.get(`${API_URL}/api/structure/years/${yearId}/courses`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setCourses(Array.isArray(response.data) ? response.data : [])
     } catch (err) {
+      console.error('Failed to load courses:', err)
       setError('Failed to load courses')
       setCourses([])
     }
@@ -96,7 +100,7 @@ function TutorPage() {
   const fetchConversations = async (courseId) => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get(`/api/tutor/conversations/${courseId}`, {
+      const response = await axios.get(`${API_URL}/api/tutor/conversations/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setConversations(Array.isArray(response.data) ? response.data : [])
@@ -109,12 +113,13 @@ function TutorPage() {
   const loadConversation = async (conversationId) => {
     try {
       const token = await getAuthToken()
-      const response = await axios.get(`/api/tutor/conversation/${conversationId}`, {
+      const response = await axios.get(`${API_URL}/api/tutor/conversation/${conversationId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setMessages(response.data.messages)
       setSelectedConversation(conversationId)
     } catch (err) {
+      console.error('Failed to load conversation:', err)
       setError('Failed to load conversation')
     }
   }
@@ -140,7 +145,7 @@ function TutorPage() {
 
     try {
       const token = await getAuthToken()
-      const response = await axios.post('/api/tutor/message', {
+      const response = await axios.post(`${API_URL}/api/tutor/message`, {
         courseId: selectedCourse,
         message: userMessage,
         conversationId: selectedConversation
