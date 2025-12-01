@@ -871,17 +871,32 @@ export const getQuiz = async (req, res) => {
   try {
     const { quizId } = req.params
     
+    console.log('🔍 getQuiz called with quizId:', quizId, 'userId:', req.auth.userId)
+    
     const quiz = await Quiz.findOne({ 
       _id: quizId, 
       userId: req.auth.userId 
     })
     
     if (!quiz) {
+      console.log('❌ Quiz not found for quizId:', quizId)
       return res.status(404).json({ error: 'Quiz not found' })
+    }
+    
+    console.log('✅ Quiz found:', {
+      id: quiz._id,
+      title: quiz.title,
+      questionsCount: quiz.questions?.length || 0,
+      hasQuestions: Array.isArray(quiz.questions) && quiz.questions.length > 0
+    })
+    
+    if (!quiz.questions || quiz.questions.length === 0) {
+      console.log('⚠️ WARNING: Quiz has no questions!')
     }
     
     res.json(quiz)
   } catch (error) {
+    console.error('❌ getQuiz error:', error)
     res.status(500).json({ error: error.message })
   }
 }

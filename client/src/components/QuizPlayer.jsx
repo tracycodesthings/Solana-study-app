@@ -177,68 +177,24 @@ function QuizPlayer() {
 
               {/* Answer Options */}
               <div className="space-y-3">
-                {question.type === 'MCQ' ? (
-                  question.options.map((option, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleAnswerSelect(option)}
-                      className={`w-full text-left p-4 rounded-lg border-2 transition ${
-                        answers[currentQuestion] === option
-                          ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-700/50'
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <span className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full border-2 mr-3 ${
-                          answers[currentQuestion] === option ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 dark:border-gray-600'
-                        }`}>
-                          {String.fromCharCode(65 + index)}
-                        </span>
-                        <span className="flex-1 text-gray-900 dark:text-white">{option}</span>
-                      </div>
-                    </button>
-                  ))
-                return (
-                  <div className="flex">
-                    <Sidebar />
-                    <div className="flex-1 p-6">
-                      <UserButton afterSignOutUrl="/sign-in" />
-                      {/* Debug output: show raw quiz object */}
-                      <div style={{ background: '#f9f9f9', color: '#333', padding: '1em', marginBottom: '1em', border: '1px solid #ccc', fontSize: '0.9em' }}>
-                        <strong>Debug: Raw quiz object</strong>
-                        <pre>{JSON.stringify(quiz, null, 2)}</pre>
-                      </div>
-                      {loading ? (
-                        <div>Loading quiz...</div>
-                      ) : error ? (
-                        <div className="text-red-500">{error}</div>
-                      ) : !quiz || !quiz.questions || quiz.questions.length === 0 ? (
-                        <div>No quiz data available.</div>
-                      ) : showResults ? (
-                        <QuizResults results={results} quiz={quiz} />
-                      ) : (
-                        // ...existing code...
-                      )}
-                    </div>
-                  </div>
-                )
-                Previous
-              </button>
-
-              <div className="flex gap-2 overflow-x-auto max-w-md">
-                {quiz.questions.map((_, index) => (
+                {question.type === 'MCQ' && question.options.map((option, index) => (
                   <button
                     key={index}
-                    onClick={() => setCurrentQuestion(index)}
-                    className={`w-10 h-10 rounded-full text-sm font-medium flex-shrink-0 ${
-                      index === currentQuestion
-                        ? 'bg-blue-600 text-white'
-                        : answers[index]
-                        ? 'bg-gray-400 text-white'
-                        : 'bg-gray-200 text-gray-600'
+                    onClick={() => handleAnswerSelect(option)}
+                    className={`w-full text-left p-4 rounded-lg border-2 transition ${
+                      answers[currentQuestion] === option
+                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30'
+                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-700/50'
                     }`}
                   >
-                    {index + 1}
+                    <div className="flex items-center">
+                      <span className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full border-2 mr-3 ${
+                        answers[currentQuestion] === option ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 dark:border-gray-600'
+                      }`}>
+                        {String.fromCharCode(65 + index)}
+                      </span>
+                      <span className="flex-1 text-gray-900 dark:text-white">{option}</span>
+                    </div>
                   </button>
                 ))}
               </div>
